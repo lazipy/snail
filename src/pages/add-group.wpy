@@ -1,0 +1,237 @@
+<template>
+  <view class="container">
+    <view class="cell-group">
+      <view class="cell"
+            @tap="handleAvatarTap">
+        <view class="label">头像</view>
+        <image class="avatar"
+               src="{{formData.logo || '../assets/img/icon-group.png'}}"
+               mode="scaleToFill"
+               lazy-load="false">
+        </image>
+        <image class="arrow"
+               src="../assets/img/arrow_right.png"
+               mode="scaleToFill"
+               lazy-load="false">
+        </image>
+      </view>
+      <view class="cell">
+        <view class="label">名称</view>
+        <input type="text"
+               value="{{formData.name}}"
+               placeholder="请输入名称"
+               placeholder-style="color: #CCCCCC;"
+               @input="inputChange('name')" />
+      </view>
+      <view class="cell">
+        <view class="label">简介</view>
+        <input type="text"
+               value="{{formData.description}}"
+               placeholder="请输入简介"
+               placeholder-style="color: #CCCCCC;"
+               @input="inputChange('description')" />
+      </view>
+    </view>
+    <button class="submit"
+            @tap="submit">确认提交</button>
+    <i-message id="message" />
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { $Message } from '../iview/base/index'
+  import { createId } from '../utils/index'
+  import { queryGroupByName, addGroup } from '../services/group'
+
+  export default class AddGroup extends wepy.page {
+    config = {
+      navigationBarTitleText: '添加类型'
+    }
+    data = {
+      userInfo: null,
+      formData: {
+        userId: '',
+        logo: '',
+        name: '',
+        description: ''
+      }
+    }
+    onLoad() {
+      this.userInfo = wx.getStorageSync('userInfo')
+      this.formData.userId = this.userInfo._id
+    }
+    methods = {
+      async handleAvatarTap() {
+        try {
+          const path = await this.chooseImage()
+          await this.uploadFile(path)
+          this.$apply()
+        } catch (err) {
+          console.log(err)
+        }
+      },
+      inputChange(key, e) {
+        this.formData[key] = e.detail.value
+      },
+      async submit() {
+        if (!this.formData.name) {
+          wx.showToast({ title: '请输入名称', icon: 'none' })
+          return
+        }
+        if (!this.formData.description) {
+          wx.showToast({ title: '请输入简介', icon: 'none' })
+          return
+        }
+        wx.showLoading({ title: '提交中...', mask: true })
+        queryGroupByName(this.formData)
+          .then(res => {
+            if (res.data.length > 0) {
+              wx.showToast({ title: '您已拥有该类型名称，请更换名称', icon: 'none' })
+            } else {
+              addGroup(this.formData)
+                .then(res => {
+                  wx.hideLoading()
+                  $Message({
+                    content: '添加类型成功',
+                    type: 'success'
+                  })
+                  wx.navigateBack({
+                    delta: 1
+                  })
+                })
+                .catch(err => {
+                  console.log(err)
+                })
+            }
+          })
+          .catch(err => {
+            console.log(err)
+          })
+      }
+    }
+    // 选择图片
+    chooseImage() {
+      return new Promise((resolve, reject) => {
+        wx.chooseImage({
+          count: 1,
+          sizeType: ['original', 'compressed'],
+          sourceType: ['album', 'camera'],
+          success: function(res) {
+            resolve(res.tempFilePaths[0])
+          },
+          fail: function(err) {
+            reject(err)
+          }
+        })
+      })
+    }
+    // 上传文件
+    uploadFile(path) {
+      const _self = this
+      const id = createId()
+      return new Promise((resolve, reject) => {
+        wx.cloud.uploadFile({
+          cloudPath: `avatar/group/${id}.png`,
+          filePath: path,
+          success: res => {
+            _self.formData.logo = `https://7072-prod-c73daa-1259005191.tcb.qcloud.la/avatar/group/${id}.png`
+            _self.$apply()
+          },
+          fail: err => {
+            console.log(err)
+            wx.showToast({ title: '图片上传失败', icon: 'none' })
+          }
+        })
+      })
+    }
+  }
+</script>
+
+<style lang="scss" scoped>
+  .container {
+    min-height: 100vh;
+    line-height: 1;
+    background-color: #f2f2f2;
+    .cell-group {
+      margin-bottom: 20rpx;
+      background-color: #fff;
+      padding: 0 30rpx;
+      .cell {
+        position: relative;
+        display: flex;
+        align-items: center;
+        height: 108rpx;
+        &:first-child {
+          height: 175rpx;
+          .label {
+            flex: 1;
+          }
+          .avatar {
+            width: 106rpx;
+            height: 106rpx;
+          }
+          .arrow {
+            width: 12rpx;
+            height: 24rpx;
+            margin-left: 13rpx;
+          }
+        }
+        &:not(:last-child)::after {
+          position: absolute;
+          content: ' ';
+          width: 100%;
+          left: 0;
+          bottom: 0;
+          height: 1px;
+          background-color: #e5e5e5;
+          -webkit-transform: scale(1, 0.5);
+          transform: scale(1, 0.5);
+          -webkit-transform-origin: center bottom;
+          transform-origin: center bottom;
+        }
+        .label {
+          font-family: 'PingFang-SC-Medium';
+          font-size: 30rpx;
+          color: #333333;
+        }
+        input {
+          margin-left: 30rpx;
+          flex: 1;
+          font-family: 'PingFang-SC-Regular';
+          font-size: 30rpx;
+          height: 74rpx;
+          line-height: 74rpx;
+          color: #999999;
+          text-align: right;
+        }
+        .value {
+          margin-left: 30rpx;
+          flex: 1;
+          font-family: 'PingFang-SC-Regular';
+          font-size: 30rpx;
+          color: #999999;
+          text-align: right;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+      }
+    }
+    .submit {
+      margin-top: 60rpx;
+      width: 690rpx;
+      height: 96rpx;
+      line-height: 96rpx;
+      border-radius: 48rpx;
+      font-family: 'PingFang-SC-Medium';
+      font-weight: 500;
+      font-size: 36rpx;
+      background: linear-gradient(to left, #6f7bfd, #51a6fd), linear-gradient(to bottom, #ff7373, #ff7373);
+      color: #ffffff;
+      &::after {
+        border: none;
+      }
+    }
+  }
+</style>

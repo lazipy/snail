@@ -1,0 +1,109 @@
+<style lang="scss">
+  @import './styles/index';
+</style>
+
+<script>
+  import wepy from 'wepy'
+  import 'wepy-async-function'
+
+  // 初始化云服务
+  wx.cloud.init({
+    env: 'prod-c73daa',
+    traceUser: true
+  })
+
+  export default class extends wepy.app {
+    config = {
+      pages: [
+        'pages/home',
+        'pages/account-detail',
+        'pages/add-account',
+        'pages/edit-account',
+        'pages/group',
+        'pages/add-group',
+        'pages/edit-group',
+        'pages/account-list',
+        'pages/publish',
+        'pages/flag',
+        'pages/mine',
+        'pages/login',
+        'pages/vip-intro'
+      ],
+      window: {
+        navigationBarTitleText: '蜗牛账号管家',
+        navigationBarBackgroundColor: '#6f7bfd',
+        navigationBarTextStyle: 'white'
+      },
+      usingComponents: {
+        'i-badge': './iview/badge/index',
+        'i-tab-bar': './iview/tab-bar/index',
+        'i-tab-bar-item': './iview/tab-bar-item/index',
+        'i-icon': './iview/icon/index',
+        'i-action-sheet': './iview/action-sheet/index',
+        'i-message': './iview/message/index',
+        'i-cell-group': './iview/cell-group/index',
+        'i-cell': './iview/cell/index',
+        'i-tag': './iview/tag/index',
+        'i-button': './iview/button/index',
+        'i-load-more': './iview/load-more/index',
+        'i-notice-bar': './iview/notice-bar/index',
+        'i-swipeout': './iview/swipeout/index'
+      },
+      'tabBar': {
+        color: '#999999',
+        selectedColor: '#868AFF',
+        backgroundColor: '#ffffff',
+        'list': [
+          { 'pagePath': 'pages/home', 'text': '最新' },
+          { 'pagePath': 'pages/group', 'text': '类型' },
+          { 'pagePath': 'pages/publish', 'text': '发布' },
+          { 'pagePath': 'pages/flag', 'text': '星标' },
+          { 'pagePath': 'pages/mine', 'text': '我的' }
+        ]
+      }
+    }
+
+    constructor() {
+      super()
+      this.use('requestfix')
+      this.use('promisify')
+    }
+
+    onLaunch() {
+      this.checkUpdate()
+    }
+    // 检查小程序是否有更新
+    checkUpdate() {
+      if (wepy.canIUse('getUpdateManager')) {
+        const updateManager = wx.getUpdateManager()
+        updateManager.onCheckForUpdate(function(res) {
+          // 请求完新版本信息的回调
+          if (res.hasUpdate) {
+            // 新的版本已经下载好，调用 applyUpdate 应用新版本并重启
+            updateManager.onUpdateReady(function() {
+              wepy.showModal({
+                title: '更新提示',
+                content: '新版本已经准备好，是否重启应用？',
+                success: function(res) {
+                  if (res.confirm) {
+                    updateManager.applyUpdate()
+                  }
+                }
+              })
+            })
+            // 新的版本下载失败
+            updateManager.onUpdateFailed(function() {
+              wepy.showModal({
+                title: '已经有新版本了哟~',
+                content: '新版本已经上线啦~，请您删除当前小程序，重新搜索打开哟~'
+              })
+            })
+          }
+        })
+      } else {
+        // 如果希望用户在最新版本的客户端上体验您的小程序，可以这样子提示
+        wepy.showModal({ title: '提示', content: '当前微信版本过低，无法使用自动更新功能，请升级到最新微信版本后重试。' })
+      }
+    }
+  }
+</script>

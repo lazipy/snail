@@ -1,0 +1,97 @@
+<template>
+  <view class="container">
+    <view class="title">登录一下</view>
+    <view class="description">点击微信登录，使用您的微信号绑定账号信息，将获得更佳的体验。</view>
+    <button class="login"
+            lang="zh_CN"
+            open-type="getUserInfo"
+            @getuserinfo="handleLogin">微信登录</button>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { login } from '../services/user'
+
+  export default class Login extends wepy.page {
+    config = {
+      navigationBarTitleText: '登录'
+    }
+    data = {
+      userInfo: null,
+      formData: {
+        shareId: '',
+        name: '',
+        mobile: '',
+        avatar: '',
+        gender: 1,
+        city: '',
+        province: '',
+        country: ''
+      }
+    }
+    onLoad(options) {
+      if (options.id) {
+        this.formData.shareId = options.id
+      }
+    }
+    methods = {
+      handleLogin(e) {
+        wx.showLoading({ title: '登录中...', mask: true })
+        const userInfo = e.detail.userInfo
+        this.formData.name = userInfo.nickName
+        this.formData.avatar = userInfo.avatarUrl
+        this.formData.gender = userInfo.gender
+        this.formData.city = userInfo.city
+        this.formData.province = userInfo.province
+        this.formData.country = userInfo.country
+        login(this.formData)
+          .then(res => {
+            wx.hideLoading()
+            wx.setStorageSync('userInfo', res)
+            wx.setStorageSync('sort_type', 'updated_at')
+            wx.switchTab({
+              url: './home'
+            })
+          })
+          .catch(err => {
+            console.log(err)
+          })
+      }
+    }
+  }
+</script>
+
+<style lang="scss" scoped>
+  .container {
+    padding: 60rpx 40rpx 0;
+    .title {
+      font-size: 42rpx;
+      font-weight: bold;
+      color: #333333;
+    }
+    .description {
+      margin-top: 40rpx;
+      text-align: left;
+      font-family: 'PingFang-SC-Regular';
+      font-size: 28rpx;
+      line-height: 42rpx;
+      color: #999999;
+    }
+    button {
+      margin-top: 60rpx;
+      width: 590rpx;
+      height: 96rpx;
+      line-height: 96rpx;
+      border-radius: 48rpx;
+      font-family: 'PingFang-SC-Medium';
+      font-weight: 500;
+      font-size: 36rpx;
+      background: linear-gradient(to left, #6f7bfd, #51a6fd), linear-gradient(to bottom, #ff7373, #ff7373);
+      color: #ffffff;
+      &::after {
+        border: none;
+      }
+    }
+  }
+</style>

@@ -1,0 +1,277 @@
+<template>
+  <view class="container">
+    <view class="content">
+      <view class="no-data"
+            wx:if="{{accountList && accountList.length === 0}}">
+        <image src="../assets/img/reword.png"
+               mode="scaleToFill"
+               lazy-load="false">
+        </image>
+        <view class="no-text"
+              @tap="addAccount">您当前暂无账号，<text>去添加</text></view>
+      </view>
+      <view class="list"
+            wx:if="{{accountList && accountList.length > 0}}">
+        <repeat for="{{accountList}}"
+                key="index"
+                index="index"
+                item="item">
+          <view class="item">
+            <view class="info border-b"
+                  @tap="handleToDetail({{item}})">
+              <image class="avatar"
+                     src="../assets/img/icon-account.png"
+                     mode="scaleToFill"
+                     lazy-load="false">
+              </image>
+              <view class="intro">
+                <view class="name">{{item.title}}</view>
+              </view>
+              <image class="arrow"
+                     src="../assets/img/arrow_right.png"
+                     mode="scaleToFill"
+                     lazy-load="false">
+              </image>
+            </view>
+            <view class="cell">
+              <view class="label">账号</view>
+              <view class="value"
+                    @tap="copy({{item.number}}, '账号')">{{item.number}}</view>
+            </view>
+            <view class="cell"
+                  wx:if="{{item.password}}">
+              <view class="label      ">密码</view>
+              <view class="value"
+                    @tap="copy({{item.password}}, '密码')">{{item.hidden ? '******' : item.password}}</view>
+              <image @tap="closeCurrent({{index}})"
+                     wx:if="{{!item.hidden}}"
+                     class="copy"
+                     src="../assets/img/eye.png"
+                     mode="scaleToFill"
+                     lazy-load="false">
+              </image>
+              <image @tap="toggleCurrent({{index}})"
+                     wx:if="{{item.hidden}}"
+                     class="copy"
+                     src="../assets/img/close.png"
+                     mode="scaleToFill"
+                     lazy-load="false">
+              </image>
+            </view>
+            <!-- <view class="cell">
+              <view class="label">密码提示信息</view>
+              <view class="value">{{item.description}}</view>
+            </view> -->
+            <view class="cell">
+              <view class="label">类型</view>
+              <view class="value">{{item.group_name}}</view>
+            </view>
+            <!-- <view class="cell">
+              <view class="label">创建时间</view>
+              <view class="value">{{item.date}}</view>
+            </view> -->
+          </view>
+        </repeat>
+      </view>
+    </view>
+    <tab-bar current="home" />
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import dayjs from 'dayjs'
+  import { queryGroupByUserId } from '../services/group'
+  import { queryAccountByUserId } from '../services/account'
+  import TabBar from '@/components/TabBar'
+
+  export default class Home extends wepy.page {
+    config = {
+      navigationBarTitleText: '首页'
+    }
+    components = {
+      'tab-bar': TabBar
+    }
+    data = {
+      shareId: '',
+      userInfo: null,
+      accountList: null
+    }
+    onLoad(options) {
+      if (options.id) {
+        this.shareId = options.id
+      }
+      wx.hideTabBar()
+      this.userInfo = wx.getStorageSync('userInfo')
+      if (!this.userInfo) {
+        wx.reLaunch({ url: `./login?id=${this.shareId}` })
+      }
+    }
+    onShow() {
+      this.getData()
+    }
+    methods = {
+      handleToDetail(item) {
+        wx.navigateTo({
+          url: `./account-detail?id=${item._id}`
+        })
+      },
+      toggleCurrent(index) {
+        this.accountList[index].hidden = false
+      },
+      closeCurrent(index) {
+        this.accountList[index].hidden = true
+      },
+      copy(data, key) {
+        wx.setClipboardData({
+          data,
+          success() {
+            wx.showToast({ title: `${key}已复制` })
+          }
+        })
+      },
+      addAccount() {
+        wx.showLoading({ title: '加载中...', icon: 'none' })
+        queryGroupByUserId(this.userInfo._id)
+          .then(res => {
+            wx.hideLoading()
+            if (res.data.length > 0) {
+              wx.navigateTo({
+                url: './add-account'
+              })
+            } else {
+              wx.showToast({ title: '您暂无账号类型，请先创建一个账号类型', icon: 'none' })
+            }
+          })
+          .catch(err => {
+            console.log(err)
+          })
+      }
+    }
+    getData() {
+      wx.showLoading({ title: '加载中...', mask: true })
+      queryAccountByUserId(this.userInfo._id)
+        .then(res => {
+          wx.hideLoading()
+          this.accountList = res.data.map(item => {
+            item.date = dayjs(item.created_at).format('YYYY-MM-DD')
+            return item
+          })
+          this.accountList.sort((a, b) => {
+            return dayjs(b.updated_at).valueOf() - dayjs(a.updated_at).valueOf()
+          })
+          this.$apply()
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    }
+  }
+</script>
+
+<style lang="scss" scoped>
+  .container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding-bottom: 50px;
+    .content {
+      flex: 1;
+      overflow: auto;
+      padding: 0 30rpx;
+      .no-data {
+        padding-top: 150rpx;
+        text-align: center;
+        .no-text {
+          font-size: 30rpx;
+          text {
+            color: #868aff;
+          }
+        }
+      }
+      .list {
+        padding-top: 40rpx;
+        .item {
+          padding: 0 0 0 30rpx;
+          background: rgba(255, 255, 255, 1);
+          box-shadow: 0 5rpx 18rpx 2rpx rgba(204, 204, 204, 0.2);
+          border-radius: 10rpx;
+          margin-bottom: 40rpx;
+        }
+        .cell {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding-bottom: 30rpx;
+          margin-right: 30rpx;
+          &:nth-child(2) {
+            padding-top: 30rpx;
+          }
+        }
+        .label {
+          font-family: 'PingFang-SC-Regular';
+          font-size: 28rpx;
+          color: #999999;
+        }
+        .value {
+          flex: 1;
+          text-align: right;
+          font-family: 'PingFang-SC-Regular';
+          font-size: 28rpx;
+          color: #333333;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .copy {
+          width: 40rpx;
+          height: 40rpx;
+          margin-left: 20rpx;
+        }
+      }
+      .info {
+        display: flex;
+        align-items: center;
+        padding: 30rpx 0;
+        margin-right: 30rpx;
+        .avatar {
+          width: 70rpx;
+          height: 70rpx;
+          border-radius: 50%;
+        }
+        .intro {
+          flex: 1;
+          overflow: hidden;
+          line-height: 1;
+          margin-left: 19rpx;
+          .name {
+            font-family: 'PingFang-SC-Bold';
+            font-size: 32rpx;
+            font-weight: bold;
+            color: #333333;
+            margin-top: 5rpx;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+          .phone {
+            font-family: 'PingFang-SC-Bold';
+            font-size: 28rpx;
+            color: #999999;
+            margin-top: 10rpx;
+          }
+        }
+        .call {
+          width: 42rpx;
+          height: 42rpx;
+          padding: 14rpx 30rpx;
+          margin-right: -15rpx;
+        }
+        .arrow {
+          width: 12rpx;
+          height: 24rpx;
+        }
+      }
+    }
+  }
+</style>

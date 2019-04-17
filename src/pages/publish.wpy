@@ -1,0 +1,232 @@
+<template>
+  <view>
+    <view class="container">
+      <view class="title">选择发布类型</view>
+      <view class="descript">一个用户默认只能添加10个账号，通过分享好友或群，邀请1个好友使用将额外获得添加1个账号的机会</view>
+      <!-- ；会员用户不限制添加账号个数 -->
+      <view class="card"
+            @tap="handleTap('./add-account')">
+        <view>
+          <view class="label">添加账号</view>
+          <view class="description">个人需要保存的账号</view>
+        </view>
+        <image src="../assets/img/account.png"
+               mode="scaleToFill"
+               lazy-load="false">
+        </image>
+      </view>
+      <view class="card"
+            @tap="handleTap('./add-group')">
+        <view>
+          <view class="label">添加类型</view>
+          <view class="description">给账号添加类型管理</view>
+        </view>
+        <image src="../assets/img/group.png"
+               mode="scaleToFill"
+               lazy-load="false">
+        </image>
+      </view>
+      <!-- 底部按钮 -->
+      <!-- <view class="action-list">
+        <button open-type='share'
+                class="action-item"
+                plain>
+          <image class="action-icon"
+                 src="../assets/img/share.png" />
+          <view class="action-text">分享好友</view>
+        </button>
+        <view class="action-item" @tap="toVip">
+          <image class="action-icon"
+                 src="../assets/img/vip.png" />
+          <view class="action-text">充值会员</view>
+          <view class="active-line active-line-right"></view>
+        </view>
+      </view> -->
+      <button plain
+              open-type='share'
+              class="share">
+        <image class="action-icon"
+               src="../assets/img/share.png" />
+      </button>
+    </view>
+    <tab-bar current="publish" />
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { queryUserById } from '../services/user'
+  import { queryGroupByUserId } from '../services/group'
+  import { queryAccountByUserId } from '../services/account'
+  import TabBar from '@/components/TabBar'
+
+  export default class Publish extends wepy.page {
+    config = {
+      navigationBarTitleText: '发布'
+    }
+    components = {
+      'tab-bar': TabBar
+    }
+    data = {
+      userInfo: null
+    }
+    onLoad() {
+      wx.hideTabBar()
+      this.userInfo = wx.getStorageSync('userInfo')
+    }
+    onShareAppMessage(res) {
+      return {
+        title: '账号太多记不住？点我就对了',
+        path: `/pages/home?id=${this.userInfo._id}`,
+        imageUrl: '../assets/img/select_team.png'
+      }
+    }
+    methods = {
+      handleTap(url) {
+        if (url === './add-account') {
+          wx.showLoading({ title: '加载中...', icon: 'none' })
+          queryUserById(this.userInfo._id)
+            .then(res => {
+              this.userInfo = res.data
+              wx.setStorageSync('userInfo', this.userInfo)
+              this.$apply()
+              queryGroupByUserId(this.userInfo._id)
+                .then(res => {
+                  if (res.data.length > 0) {
+                    queryAccountByUserId(this.userInfo._id)
+                      .then(res => {
+                        wx.hideLoading()
+                        if (res.data.length >= this.userInfo.account_total) {
+                          wx.showToast({ title: '您的账号个数已达上限', icon: 'none' })
+                        } else {
+                          wx.navigateTo({
+                            url
+                          })
+                        }
+                      })
+                      .catch(err => {
+                        console.log(err)
+                      })
+                  } else {
+                    wx.showToast({ title: '您暂无账号类型，请先创建一个账号类型', icon: 'none' })
+                  }
+                })
+                .catch(err => {
+                  console.log(err)
+                })
+            })
+            .catch(err => {
+              console.log(err)
+            })
+        } else {
+          wx.navigateTo({
+            url
+          })
+        }
+      },
+      toVip() {
+        wx.navigateTo({
+          url: './vip-intro'
+        })
+      }
+    }
+  }
+</script>
+
+<style lang="scss" scoped>
+  .container {
+    padding: 50rpx 30rpx 40rpx;
+    .title {
+      font-size: 48rpx;
+      font-family: 'PingFang-SC-Bold';
+      color: #2c2c2c;
+      font-weight: bold;
+    }
+    .descript {
+      font-size: 24rpx;
+      font-family: 'PingFang-SC-Regular';
+      color: #999999;
+      margin-top: 18rpx;
+      margin-bottom: 60rpx;
+    }
+    .card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 40rpx;
+      background: rgba(255, 255, 255, 1);
+      box-shadow: 0 5rpx 18rpx 2rpx rgba(204, 204, 204, 0.15);
+      border-radius: 10rpx;
+      padding: 20rpx 40rpx;
+      image {
+        width: 150rpx;
+        height: 150rpx;
+      }
+      .label {
+        font-size: 36rpx;
+        font-family: 'PingFang-SC-Bold';
+        color: #2c2c2c;
+        font-weight: bold;
+        margin-bottom: 6rpx;
+      }
+      .description {
+        font-size: 24rpx;
+        font-family: 'PingFang-SC-Regular';
+        color: #999999;
+      }
+    }
+    .share {
+      position: fixed;
+      bottom: 200rpx;
+      right: 40rpx;
+      width: 100rpx;
+      height: 100rpx;
+      border: none;
+      border-radius: 50%;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 5rpx 18rpx 2rpx rgba(204, 204, 204, 0.15);
+    }
+    .action-list {
+      margin-top: 120rpx;
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 40rpx;
+    }
+    .action-item {
+      display: block;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      border: none;
+      line-height: normal;
+      position: relative;
+      width: 50%;
+    }
+    .active-line {
+      width: 1rpx;
+      height: 50rpx;
+      background-color: #f5f5f5;
+      position: absolute;
+      top: 16rpx;
+      &.active-line-right {
+        left: 0;
+      }
+      &.active-line-left {
+        right: 0;
+      }
+    }
+    .action-icon {
+      width: 50rpx;
+      height: 50rpx;
+    }
+    .action-text {
+      color: #999;
+      font-size: 26rpx;
+      margin-top: 10rpx;
+    }
+  }
+</style>

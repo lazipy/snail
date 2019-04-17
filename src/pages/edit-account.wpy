@@ -1,0 +1,408 @@
+<template>
+  <view class="container">
+    <view class="cell-group">
+      <view class="cell">
+        <view class="label">标题</view>
+        <input type="text"
+               value="{{formData.title}}"
+               placeholder="请输入账号标题"
+               placeholder-style="color: #CCCCCC;"
+               @input="inputChange('title')" />
+      </view>
+      <view class="cell">
+        <view class="label">账号</view>
+        <input type="text"
+               value="{{formData.number}}"
+               placeholder="请输入账号"
+               placeholder-style="color: #CCCCCC;"
+               @input="inputChange('number')" />
+      </view>
+      <view class="cell">
+        <view class="label">密码<text>（非必填）</text></view>
+        <input type="password"
+               wx:if="{{formData.hidden}}"
+               value="{{formData.password}}"
+               placeholder="请输入密码"
+               placeholder-style="color: #CCCCCC;"
+               @input="inputChange('password')" />
+        <input type="text"
+               wx:if="{{!formData.hidden}}"
+               value="{{formData.password}}"
+               placeholder="请输入密码"
+               placeholder-style="color: #CCCCCC;"
+               @input="inputChange('password')" />
+      </view>
+      <view class="cell">
+        <view class="label">密码提示信息</view>
+        <input type="text"
+               value="{{formData.description}}"
+               placeholder="请输入密码提示信息"
+               placeholder-style="color: #CCCCCC;"
+               @input="inputChange('description')" />
+      </view>
+      <view class="cell"
+            @tap="show">
+        <view class="label">类型</view>
+        <view class="value"
+              wx:if="{{formData.groupName}}">{{formData.groupName}}</view>
+        <view class="placeholder"
+              wx:else>请选择类型</view>
+        <image class="arrow"
+               src="../assets/img/arrow_right.png"
+               mode="scaleToFill"
+               lazy-load="false">
+        </image>
+      </view>
+      <view class="cell">
+        <view class="label">密码是否密文显示</view>
+        <switch checked="{{formData.hidden}}"
+                type="switch"
+                color="#6f7bfd"
+                @change="switchChange" />
+      </view>
+    </view>
+    <button class="submit"
+            @tap="submit">确认提交</button>
+    <i-message id="message" />
+    <!-- picker -->
+    <view class="picker-wrap {{visible && 'show'}}">
+      <view class="masker {{visible && 'show'}}"
+            @tap="cancel"></view>
+      <view class="content {{visible && 'show'}}">
+        <view class="actions border-b">
+          <button class="cancel"
+                  @tap="cancel">取消</button>
+          <button class="sure"
+                  @tap="sure">确定</button>
+        </view>
+        <picker-view class="picker"
+                     value="{{value}}"
+                     indicator-style="height: 44px;"
+                     bindchange="bindChange">
+          <picker-view-column>
+            <repeat for="{{groupList}}"
+                    key="index"
+                    index="index"
+                    item="item">
+              <view class="item"
+                    style="height: 44px;line-height: 44px">{{item}}</view>
+            </repeat>
+          </picker-view-column>
+        </picker-view>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { $Message } from '../iview/base/index'
+  import { queryGroupByUserId } from '../services/group'
+  import { queryAccountById, queryAccountByNumber, updateAccount } from '../services/account'
+
+  export default class EditAccount extends wepy.page {
+    config = {
+      navigationBarTitleText: '编辑账号'
+    }
+    data = {
+      userInfo: null,
+      visible: false,
+      value: [0],
+      groupIds: [],
+      groupList: [],
+      formData: {
+        id: '',
+        userId: '',
+        title: '',
+        groupId: '',
+        groupName: '',
+        flag: 0,
+        number: '',
+        password: '',
+        description: '',
+        hidden: true
+      }
+    }
+    onLoad(options) {
+      this.userInfo = wx.getStorageSync('userInfo')
+      this.formData.userId = this.userInfo._id
+      this.formData.id = options.accountId
+      this.getData()
+    }
+    methods = {
+      inputChange(key, e) {
+        this.formData[key] = e.detail.value
+      },
+      switchChange(e) {
+        this.formData.hidden = e.detail.value
+        console.log(this.formData.hidden)
+      },
+      show() {
+        this.visible = true
+      },
+      cancel() {
+        this.visible = false
+      },
+      bindChange(e) {
+        this.value = e.detail.value
+      },
+      sure() {
+        this.visible = false
+        this.formData.groupId = this.groupIds[this.value[0]]
+        this.formData.groupName = this.groupList[this.value[0]]
+      },
+      async submit() {
+        if (!this.formData.title) {
+          wx.showToast({ title: '请输入账号标题', icon: 'none' })
+          return
+        }
+        if (!this.formData.number) {
+          wx.showToast({ title: '请输入账号', icon: 'none' })
+          return
+        }
+        if (!this.formData.description) {
+          wx.showToast({ title: '请输入密码提示信息', icon: 'none' })
+          return
+        }
+        if (!this.formData.groupId) {
+          wx.showToast({ title: '请选择分组', icon: 'none' })
+          return
+        }
+        wx.showLoading({ title: '提交中...', mask: true })
+
+        queryAccountByNumber(this.formData)
+          .then(res => {
+            if (res.data.length > 1 || (res.data.length === 1 && res.data[0]._id !== this.formData.id)) {
+              wx.showToast({ title: '该类型下已拥有该账号，请更换', icon: 'none' })
+            } else {
+              const requestData = Object.assign({}, this.formData)
+              requestData._id = requestData.id
+              requestData.group_id = requestData.groupId
+              requestData.group_name = requestData.groupName
+              updateAccount(requestData)
+                .then(res => {
+                  wx.hideLoading()
+                  $Message({
+                    content: '修改账号成功',
+                    type: 'success'
+                  })
+                  setTimeout(() => {
+                    wx.navigateBack({
+                      delta: 1
+                    })
+                  }, 800)
+                })
+                .catch(err => {
+                  console.log(err)
+                })
+            }
+          })
+          .catch(err => {
+            console.log(err)
+          })
+      }
+    }
+    // 获取数据
+    getData() {
+      wx.showLoading({ title: '加载中...', mask: true })
+      Promise.all([queryAccountById(this.formData.id), queryGroupByUserId(this.userInfo._id)])
+        .then(res => {
+          wx.hideLoading()
+          this.formData.groupId = res[0].data.group_id
+          this.formData.groupName = res[0].data.group_name
+          this.formData.flag = res[0].data.flag
+          this.formData.title = res[0].data.title
+          this.formData.number = res[0].data.number
+          this.formData.password = res[0].data.password
+          this.formData.description = res[0].data.description
+          this.formData.hidden = res[0].data.hidden
+
+          this.groupIds = res[1].data.map(item => item._id)
+          this.groupList = res[1].data.map(item => item.name)
+
+          const index = this.groupIds.findIndex(item => item === this.formData.groupId)
+          this.groupIds.unshift(this.groupIds.splice(index, 1))
+          this.groupList.unshift(this.groupList.splice(index, 1))
+          this.$apply()
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    }
+  }
+</script>
+
+<style lang="scss" scoped>
+  .container {
+    min-height: 100vh;
+    line-height: 1;
+    background-color: #f2f2f2;
+    .cell-group {
+      margin-bottom: 20rpx;
+      background-color: #fff;
+      padding: 0 30rpx;
+      .cell {
+        position: relative;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 108rpx;
+        &:not(:last-child)::after {
+          position: absolute;
+          content: ' ';
+          width: 100%;
+          left: 0;
+          bottom: 0;
+          height: 1px;
+          background-color: #e5e5e5;
+          -webkit-transform: scale(1, 0.5);
+          transform: scale(1, 0.5);
+          -webkit-transform-origin: center bottom;
+          transform-origin: center bottom;
+        }
+        .label {
+          font-family: 'PingFang-SC-Medium';
+          font-size: 30rpx;
+          color: #333333;
+          text {
+            color: #999999;
+          }
+        }
+        input {
+          margin-left: 30rpx;
+          flex: 1;
+          font-family: 'PingFang-SC-Regular';
+          font-size: 30rpx;
+          height: 74rpx;
+          line-height: 74rpx;
+          color: #999999;
+          text-align: right;
+        }
+        switch {
+          transform-origin: right center;
+          transform: scale(0.7);
+        }
+        .value {
+          margin-left: 30rpx;
+          flex: 1;
+          font-family: 'PingFang-SC-Regular';
+          font-size: 30rpx;
+          color: #999999;
+          text-align: right;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .placeholder {
+          margin-left: 30rpx;
+          flex: 1;
+          font-family: 'PingFang-SC-Regular';
+          font-size: 30rpx;
+          color: #cccccc;
+          text-align: right;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .arrow {
+          width: 12rpx;
+          height: 24rpx;
+          margin-left: 13rpx;
+        }
+      }
+    }
+    .submit {
+      margin-top: 60rpx;
+      width: 690rpx;
+      height: 96rpx;
+      line-height: 96rpx;
+      border-radius: 48rpx;
+      font-family: 'PingFang-SC-Medium';
+      font-weight: 500;
+      font-size: 36rpx;
+      background: linear-gradient(to left, #6f7bfd, #51a6fd), linear-gradient(to bottom, #ff7373, #ff7373);
+      color: #ffffff;
+      &::after {
+        border: none;
+      }
+    }
+  }
+  .picker-wrap {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 999;
+    transition: all 0.2s ease-in-out;
+    &.show {
+      top: 0;
+    }
+
+    .masker {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.5);
+      transition: all 0.2s ease-in-out;
+      opacity: 0;
+      visibility: hidden;
+
+      &.show {
+        opacity: 1;
+        visibility: visible;
+      }
+    }
+    .content {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      background-color: #f7f7f7;
+      color: #333333;
+      text-align: center;
+      transform: translate3d(0, 100%, 0);
+      transform-origin: center;
+      transition: all 0.2s ease-in-out;
+      visibility: hidden;
+
+      &.show {
+        transform: translate3d(0, 0, 0);
+        visibility: visible;
+      }
+    }
+    .actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #fff;
+      button {
+        width: 150rpx;
+        height: 50px;
+        margin-left: 0;
+        margin-right: 0;
+        font-size: 30rpx;
+        font-weight: bold;
+        background-color: transparent;
+        &::after {
+          border: none;
+        }
+      }
+      .cancel {
+        color: #666666;
+      }
+      .sure {
+        color: #6f7bfd;
+      }
+    }
+    .picker {
+      height: 40vh;
+      background-color: #fff;
+    }
+    .item {
+      background-color: #fff;
+      color: #333333;
+    }
+  }
+</style>

@@ -1,0 +1,50 @@
+<template>
+  <i-tab-bar current="{{ current }}"
+             fixed
+             color="#868AFF"
+             bindchange="handleChange">
+    <i-tab-bar-item key="home"
+                    img="../../assets/img/icon-home.png"
+                    current-img="../../assets/img/icon-home-active.png"
+                    title="最新"></i-tab-bar-item>
+    <i-tab-bar-item key="group"
+                    img="../../assets/img/icon-cate.png"
+                    current-img="../../assets/img/icon-cate-active.png"
+                    title="类型"></i-tab-bar-item>
+    <i-tab-bar-item key="publish"
+                    img="../../assets/img/icon-navigator.png"
+                    current-img="../../assets/img/icon-navigator.png"></i-tab-bar-item>
+    <i-tab-bar-item key="flag"
+                    img="../../assets/img/icon-flag.png"
+                    current-img="../../assets/img/icon-flag-active.png"
+                    title="星标"></i-tab-bar-item>
+    <i-tab-bar-item key="mine"
+                    img="../../assets/img/icon-mine.png"
+                    current-img="../../assets/img/icon-mine-active.png"
+                    title="我的"></i-tab-bar-item>
+  </i-tab-bar>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  export default class TabBar extends wepy.component {
+    isComponent = true
+    name = 'TabBar'
+    props = {
+      current: {
+        type: String,
+        toWay: true
+      }
+    }
+    methods = {
+      handleChange (e) {
+        wx.switchTab({
+          url: e.detail.key
+        })
+      }
+    }
+  }
+</script>
+
+<style lang="scss" scoped>
+</style>
