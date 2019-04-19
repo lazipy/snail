@@ -16,7 +16,16 @@
 
   export default class extends wepy.app {
     config = {
-      pages: ['pages/home', 'pages/login', 'pages/register', 'pages/group', 'pages/publish', 'pages/flag', 'pages/mine'],
+      pages: [
+        'pages/home',
+        'pages/login',
+        'pages/register',
+        'pages/group',
+        'pages/add-group',
+        'pages/publish',
+        'pages/flag',
+        'pages/mine'
+      ],
       window: {
         navigationBarTitleText: '蜗牛账号管家',
         navigationBarBackgroundColor: '#1890FF',

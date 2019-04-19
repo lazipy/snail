@@ -3,8 +3,10 @@
     <!-- content body -->
     <view class="content">
       <view class="panel">
-        <image class="avatar" src="{{userInfo.avatar}}" mode="scaleToFill"
-          lazy-load="false">
+        <image class="avatar"
+               src="{{userInfo.avatar}}"
+               mode="scaleToFill"
+               lazy-load="false">
         </image>
         <view class="name">{{userInfo.name}}</view>
         <view class="mobile">{{userInfo.mobile}}</view>
@@ -48,7 +50,7 @@
         </view>
       </view>
       <button class="cu-btn bg-blue block lg btn-logout margin-lg"
-            @tap="logout">退出登录</button>
+              @tap="logout">退出登录</button>
     </view>
     <!-- TabBar -->
     <tab-bar current="Mine" />
@@ -94,31 +96,31 @@
     flex-direction: column;
     height: 100vh;
     padding-bottom: 100rpx;
-  }
-  .content {
-    flex: 1;
-    overflow: auto;
-    padding-bottom: 35rpx;
-    .panel {
-      text-align: center;
-      background-color: #fff;
-      padding: 50rpx 0;
-      line-height: 1;
-      margin-bottom: 20rpx;
-      .avatar {
-        width: 140rpx;
-        height: 140rpx;
-        border-radius: 50%;
-      }
-      .name {
-        font-size: 30rpx;
-        color: #666666;
-        margin-top: 20rpx;
-      }
-      .mobile {
-        font-size: 28rpx;
-        color: #666666;
-        margin-top: 12rpx;
+    > .content {
+      flex: 1;
+      overflow: auto;
+      padding-bottom: 35rpx;
+      .panel {
+        text-align: center;
+        background-color: #fff;
+        padding: 50rpx 0;
+        line-height: 1;
+        margin-bottom: 20rpx;
+        .avatar {
+          width: 140rpx;
+          height: 140rpx;
+          border-radius: 50%;
+        }
+        .name {
+          font-size: 30rpx;
+          color: #666666;
+          margin-top: 20rpx;
+        }
+        .mobile {
+          font-size: 28rpx;
+          color: #666666;
+          margin-top: 12rpx;
+        }
       }
     }
   }

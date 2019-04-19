@@ -2,6 +2,7 @@ import dayjs from 'dayjs'
 
 const db = wx.cloud.database({ env: 'snail-4607b6' })
 const GroupModal = db.collection('Groups')
+const AccountModal = db.collection('Accounts')
 
 /**
  * 添加类型
@@ -29,9 +30,10 @@ export async function addGroup(data) {
         updated_at: dayjs().format('YYYY-MM-DD HH:mm:ss')
       }
     })
+    const res = await GroupModal.doc(result._id).get()
     return {
       head: { code: 1, message: '添加类型成功' },
-      body: { data: result }
+      body: { data: res.data }
     }
   } catch (err) {
     console.log(err)
@@ -86,6 +88,12 @@ export async function updateGroup(data) {
  */
 export async function deleteGroup(id) {
   try {
+    const accounts = await AccountModal.where({
+      group_id: id
+    }).get()
+    for (let account of accounts.data) {
+      await AccountModal.doc(account._id).remove()
+    }
     const result = await GroupModal.doc(id).remove()
     return {
       head: { code: 1, message: '删除类型成功' },

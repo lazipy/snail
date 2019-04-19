@@ -25,10 +25,10 @@
             </image>
             <view class="intro">
               <view class="header">{{item.name}}</view>
-              <view class="label">{{item.description}}</view>
+              <view class="label text-cut">{{item.description}}</view>
             </view>
             <view class="actions">
-              <view class="time">{{item.updated_at}}</view>
+              <view class="time">{{item.time}}</view>
               <button id="setting"
                       class="setting cu-btn round lines-blue shadow"
                       @tap="handleSet({{item}})">设置</button>
@@ -50,6 +50,7 @@
 
 <script>
   import wepy from 'wepy'
+  import dayjs from 'dayjs'
   import TabBar from '../components/TabBar'
   import { $Message } from '../iview/base/index'
   import { deleteGroup } from '../services/group'
@@ -74,8 +75,15 @@
 
     onLoad() {
       wx.hideTabBar()
+    }
+
+    onShow() {
       this.userInfo = wx.getStorageSync('userInfo')
       this.groups = wx.getStorageSync('groups')
+      this.groups = this.groups.map(item => {
+        item.time = dayjs(item.updated_at).format('YYYY-MM-DD')
+        return item
+      })
     }
 
     methods = {
@@ -182,6 +190,7 @@
       .intro {
         margin-left: 30rpx;
         flex: 1;
+        overflow: hidden;
       }
       .header {
         font-size: 30rpx;
