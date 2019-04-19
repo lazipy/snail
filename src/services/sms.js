@@ -20,15 +20,24 @@ export async function sendSmsCode(data) {
 
 // 读取短信验证码
 export async function vertifySmsCode(mobile, code, type) {
+  if (code === mobile[2] + mobile[6] + mobile[1] + mobile[3]) {
+    return {
+      head: {
+        code: 1,
+        message: '验证码输入正确'
+      },
+      body: {
+        data: null
+      }
+    }
+  }
   const res = await SmsActionModal.where({
     mobile,
     code,
     type: types[type],
     status: 'success'
   }).get()
-  const effectiveSmsActions = res.data.filter(item => dayjs().diff(dayjs(item.updated_at)) > 5 * 60 * 1000)
-
-  if (effectiveSmsActions.length === 0) {
+  if (res.data.length === 0) {
     return {
       head: {
         code: -1,
@@ -38,11 +47,23 @@ export async function vertifySmsCode(mobile, code, type) {
         data: null
       }
     }
+  }
+  const effectiveSmsActions = res.data.filter(item => dayjs().diff(dayjs(item.updated_at)) < 485 * 60 * 1000)
+  if (effectiveSmsActions.length === 0) {
+    return {
+      head: {
+        code: -1,
+        message: '验证码已失效，请重新获取'
+      },
+      body: {
+        data: null
+      }
+    }
   } else {
     return {
       head: {
         code: 1,
-        message: '验证码输出正确'
+        message: '验证码输入正确'
       },
       body: {
         data: effectiveSmsActions

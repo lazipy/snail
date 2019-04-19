@@ -1,7 +1,23 @@
 <template>
   <view class="container">
     <!-- content body -->
-    <view class="content">home</view>
+    <view class="content">
+      <!-- no-data -->
+      <view class="no-data" wx:if="{{accounts.length === 0}}">
+        <image class="icon" src="../assets/img/no-account.png" mode="scaleToFill"
+          lazy-load="false">
+        </image>
+        <view class="text text-gray">您暂无账号，<text class="text-blue">请添加</text></view>
+      </view>
+      <!-- 加载 -->
+      <view class='cu-load load-modal'
+            wx:if="{{loadModal}}">
+        <image src='../assets/img/logo.png'
+               class='png'
+               mode='aspectFit'></image>
+        <view class='gray-text'>加载中...</view>
+      </view>
+    </view>
     <!-- TabBar -->
     <tab-bar current="Home" />
   </view>
@@ -10,10 +26,12 @@
 <script>
   import wepy from 'wepy'
   import TabBar from '../components/TabBar'
+  import { queryAccounts, queryFlagAccounts } from '../services/account'
+  import { queryGroups } from '../services/group'
 
   export default class Home extends wepy.page {
     config = {
-      navigationBarTitleText: '首页',
+      navigationBarTitleText: '蜗牛账号管家',
       navigationBarTextStyle: 'white'
     }
 
@@ -21,8 +39,41 @@
       'tab-bar': TabBar
     }
 
+    data = {
+      loadModal: false,
+      userInfo: null,
+      accounts: []
+    }
+
     onLoad() {
       wx.hideTabBar()
+      this.userInfo = wx.getStorageSync('userInfo')
+      if (!this.userInfo) {
+        wx.reLaunch({ url: './login' })
+      } else if (!this.userInfo.mobile) {
+        wx.reLaunch({ url: './login' })
+      } else {
+        this.getData()
+      }
+    }
+    getData() {
+      this.loadModal = true
+      Promise.all([
+        queryAccounts(this.userInfo._id),
+        queryFlagAccounts(this.userInfo._id),
+        queryGroups(this.userInfo._id)
+      ])
+        .then(res => {
+          this.loadModal = false
+          this.accounts = res[0].body.data
+          wx.setStorageSync('accounts', res[0].body.data)
+          wx.setStorageSync('flagAccounts', res[1].body.data)
+          wx.setStorageSync('groups', res[2].body.data)
+          this.$apply()
+        })
+        .catch(err => {
+          console.log(err)
+        })
     }
   }
 </script>
@@ -32,10 +83,25 @@
     display: flex;
     flex-direction: column;
     height: 100vh;
-    padding-bottom: 135rpx;
+    padding-bottom: 100rpx;
+    background-color: #fff;
   }
   .content {
     flex: 1;
     overflow: auto;
+    padding-bottom: 35rpx;
+    .no-data {
+      height: 100%;
+      text-align: center;
+      padding-top: 200rpx;
+      image {
+        width: 400rpx;
+        height: 400rpx;
+      }
+      .text {
+        padding: 20rpx;
+        font-size: 28rpx;
+      }
+    }
   }
 </style>

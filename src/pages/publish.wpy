@@ -1,7 +1,27 @@
 <template>
   <view class="container">
     <!-- content body -->
-    <view class="content">发布</view>
+    <view class="content">
+      <view class="title">请选择发布类型</view>
+      <view class="card padding-lg margin-bottom-lg radius shadow bg-white" @tap="handleAccount">
+        <image src="../assets/img/icon-add-account.png" mode="scaleToFill"
+          lazy-load="false">
+        </image>
+        <view class="intro">
+          <view class="header">发布账号</view>
+          <view class="label">添加需要保存的账号</view>
+        </view>
+      </view>
+      <view class="card padding-lg margin-bottom-lg radius shadow bg-white" @tap="handleType">
+        <image src="../assets/img/icon-add-type.png" mode="scaleToFill"
+          lazy-load="false">
+        </image>
+        <view class="intro">
+          <view class="header">发布类型</view>
+          <view class="label">添加分类管理账号</view>
+        </view>
+      </view>
+    </view>
     <!-- TabBar -->
     <tab-bar current="Publish" />
   </view>
@@ -10,6 +30,7 @@
 <script>
   import wepy from 'wepy'
   import TabBar from '../components/TabBar'
+  import { queryGroups } from '../services/group'
 
   export default class Publish extends wepy.page {
     config = {
@@ -21,8 +42,26 @@
       'tab-bar': TabBar
     }
 
+    data = {
+      userInfo: null
+    }
+
     onLoad() {
       wx.hideTabBar()
+      this.userInfo = wx.getStorageSync('userInfo')
+    }
+
+    methods = {
+      handleAccount() {
+        wx.navigateTo({
+          url: 'add-account'
+        })
+      },
+      handleType() {
+        wx.navigateTo({
+          url: 'add-group'
+        })
+      }
     }
   }
 </script>
@@ -32,10 +71,38 @@
     display: flex;
     flex-direction: column;
     height: 100vh;
-    padding-bottom: 135rpx;
+    padding-bottom: 100rpx;
+    background-color: #fff;
   }
   .content {
     flex: 1;
     overflow: auto;
+    line-height: 1;
+    padding: 70rpx 30rpx 35rpx;
+    .title {
+      font-size: 46rpx;
+      color: #333333;
+      padding-bottom: 50rpx;
+    }
+    .card {
+      display: flex;
+      align-items: center;
+      image {
+        width: 120rpx;
+        height: 120rpx;
+      }
+      .intro {
+        margin-left: 30rpx;
+      }
+      .header {
+        font-size: 34rpx;
+        color: #333333;
+      }
+      .label {
+        font-size: 28rpx;
+        color: #666666;
+        margin-top: 30rpx;
+      }
+    }
   }
 </style>

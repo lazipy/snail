@@ -1,7 +1,55 @@
 <template>
   <view class="container">
     <!-- content body -->
-    <view class="content">我的</view>
+    <view class="content">
+      <view class="panel">
+        <image class="avatar" src="{{userInfo.avatar}}" mode="scaleToFill"
+          lazy-load="false">
+        </image>
+        <view class="name">{{userInfo.name}}</view>
+        <view class="mobile">{{userInfo.mobile}}</view>
+      </view>
+      <view class="cu-list menu">
+        <view class="cu-item arrow">
+          <view class="content">
+            <text class="icon-profile text-blue"></text>
+            <text class="text-grey">编辑资料</text>
+          </view>
+        </view>
+        <view class="cu-item arrow">
+          <view class="content">
+            <text class="icon-mobile text-blue"></text>
+            <text class="text-grey">绑定手机号</text>
+          </view>
+        </view>
+        <view class="cu-item arrow">
+          <view class="content">
+            <text class="icon-we text-blue"></text>
+            <text class="text-grey">开启指纹</text>
+          </view>
+        </view>
+        <view class="cu-item arrow">
+          <view class="content">
+            <text class="icon-question text-blue"></text>
+            <text class="text-grey">帮助中心</text>
+          </view>
+        </view>
+        <view class="cu-item arrow">
+          <view class="content">
+            <text class="icon-write text-blue"></text>
+            <text class="text-grey">问题反馈</text>
+          </view>
+        </view>
+        <view class="cu-item arrow">
+          <view class="content">
+            <text class="icon-text text-blue"></text>
+            <text class="text-grey">更新日志</text>
+          </view>
+        </view>
+      </view>
+      <button class="cu-btn bg-blue block lg btn-logout margin-lg"
+            @tap="logout">退出登录</button>
+    </view>
     <!-- TabBar -->
     <tab-bar current="Mine" />
   </view>
@@ -21,8 +69,21 @@
       'tab-bar': TabBar
     }
 
+    data = {
+      userInfo: null
+    }
+
     onLoad() {
       wx.hideTabBar()
+      this.userInfo = wx.getStorageSync('userInfo')
+    }
+
+    methods = {
+      // 退出登录
+      logout() {
+        wx.clearStorageSync()
+        wx.reLaunch({ url: './login' })
+      }
     }
   }
 </script>
@@ -32,10 +93,33 @@
     display: flex;
     flex-direction: column;
     height: 100vh;
-    padding-bottom: 135rpx;
+    padding-bottom: 100rpx;
   }
   .content {
     flex: 1;
     overflow: auto;
+    padding-bottom: 35rpx;
+    .panel {
+      text-align: center;
+      background-color: #fff;
+      padding: 50rpx 0;
+      line-height: 1;
+      margin-bottom: 20rpx;
+      .avatar {
+        width: 140rpx;
+        height: 140rpx;
+        border-radius: 50%;
+      }
+      .name {
+        font-size: 30rpx;
+        color: #666666;
+        margin-top: 20rpx;
+      }
+      .mobile {
+        font-size: 28rpx;
+        color: #666666;
+        margin-top: 12rpx;
+      }
+    }
   }
 </style>

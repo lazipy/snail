@@ -1,7 +1,31 @@
 <template>
   <view class="container">
     <!-- content body -->
-    <view class="content">分类</view>
+    <view class="content">
+      <view class="no-data" wx:if="{{groups.length === 0}}">
+        <image class="icon" src="../assets/img/no-group.png" mode="scaleToFill"
+          lazy-load="false">
+        </image>
+        <view class="text text-gray">您暂无分类，<text class="text-blue">请添加</text></view>
+      </view>
+      <view class="list" wx:else>
+        <repeat for="{{groups}}" key="index" index="index" item="item">
+          <view class="card padding-lg shadow margin-bottom-sm bg-white" @tap="handleAccount(item._id)">
+            <image src="{{item.logo || '../assets/img/icon-type.png'}}" mode="scaleToFill"
+              lazy-load="false">
+            </image>
+            <view class="intro">
+              <view class="header">{{item.name}}</view>
+              <view class="label">{{item.description}}</view>
+            </view>
+            <view class="actions">
+              <view class="time">{{item.updated_at}}</view>
+              <button id="setting" class="setting cu-btn round lines-blue shadow">设置</button>
+            </view>
+          </view>
+        </repeat>
+      </view>
+    </view>
     <!-- TabBar -->
     <tab-bar current="Group" />
   </view>
@@ -21,8 +45,24 @@
       'tab-bar': TabBar
     }
 
+    data = {
+      userInfo: null,
+      groups: []
+    }
+
     onLoad() {
       wx.hideTabBar()
+      this.userInfo = wx.getStorageSync('userInfo')
+      this.groups = wx.getStorageSync('groups')
+    }
+
+    methods = {
+      handleAccount(id, e) {
+        if (e.target.id) return
+        wx.navigateTo({
+          url: `./account-list?groupId=${id}`
+        })
+      }
     }
   }
 </script>
@@ -32,10 +72,60 @@
     display: flex;
     flex-direction: column;
     height: 100vh;
-    padding-bottom: 135rpx;
+    padding-bottom: 100rpx;
+    background-color: #fff;
   }
   .content {
     flex: 1;
     overflow: auto;
+    padding-bottom: 35rpx;
+    .no-data {
+      height: 100%;
+      text-align: center;
+      padding-top: 200rpx;
+      image {
+        width: 400rpx;
+        height: 326rpx;
+      }
+      .text {
+        padding: 20rpx;
+        font-size: 28rpx;
+      }
+    }
+    .list {
+      padding: 30rpx;
+    }
+    .card {
+      display: flex;
+      align-items: center;
+      image {
+        width: 90rpx;
+        height: 90rpx;
+      }
+      .intro {
+        margin-left: 30rpx;
+        flex: 1;
+      }
+      .header {
+        font-size: 30rpx;
+        color: #333333;
+        font-weight: 500;
+      }
+      .label {
+        font-size: 26rpx;
+        color: #666666;
+        margin-top: 20rpx;
+      }
+      .actions {
+        text-align: right;
+      }
+      .time {
+        font-size: 24rpx;
+        color: #999999;
+      }
+      .setting {
+        margin-top: 18rpx;
+      }
+    }
   }
 </style>

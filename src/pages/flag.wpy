@@ -32,10 +32,11 @@
     display: flex;
     flex-direction: column;
     height: 100vh;
-    padding-bottom: 135rpx;
+    padding-bottom: 100rpx;
   }
   .content {
     flex: 1;
     overflow: auto;
+    padding-bottom: 35rpx;
   }
 </style>

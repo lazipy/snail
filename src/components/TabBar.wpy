@@ -1,11 +1,11 @@
 <template>
-  <view class="cu-bar tabbar bg-white fixed-bottom">
+  <view class="cu-bar tabbar bg-white solid-top fixed-bottom">
     <view class="action text-{{current === 'Home' ? 'blue' : 'gray'}}" @tap="handleChange('home')">
       <view class="icon-home"></view>
-      首页
+      最新
     </view>
     <view class="action text-{{current === 'Group' ? 'blue' : 'gray'}}" @tap="handleChange('group')">
-      <view class="icon-similar"></view>
+      <view class="icon-cascades"></view>
       分类
     </view>
     <view class="action text-{{current === 'Publish' ? 'blue' : 'gray'}} add-action" @tap="handleChange('publish')">
@@ -13,7 +13,7 @@
       发布
     </view>
     <view class="action text-{{current === 'Flag' ? 'blue' : 'gray'}}" @tap="handleChange('flag')">
-      <view class="icon-cart"></view>
+      <view class="icon-like"></view>
       星标
     </view>
     <view class="action text-{{current === 'Mine' ? 'blue' : 'gray'}}" @tap="handleChange('mine')">
