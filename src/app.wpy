@@ -22,6 +22,7 @@
         'pages/register',
         'pages/group',
         'pages/add-group',
+        'pages/edit-group',
         'pages/publish',
         'pages/flag',
         'pages/mine'

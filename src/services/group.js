@@ -65,7 +65,7 @@ export async function queryGroups(userId) {
  */
 export async function updateGroup(data) {
   try {
-    const result = await GroupModal.doc(data.id).update({
+    await GroupModal.doc(data.id).update({
       data: {
         logo: data.logo,
         name: data.name,
@@ -73,9 +73,10 @@ export async function updateGroup(data) {
         updated_at: dayjs().format('YYYY-MM-DD HH:mm:ss')
       }
     })
+    const res = await GroupModal.doc(data.id).get()
     return {
       head: { code: 1, message: '编辑类型成功' },
-      body: { data: result }
+      body: { data: res.data }
     }
   } catch (err) {
     console.log(err)
