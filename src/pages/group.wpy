@@ -2,17 +2,26 @@
   <view class="container">
     <!-- content body -->
     <view class="content">
-      <view class="no-data" wx:if="{{groups.length === 0}}">
-        <image class="icon" src="../assets/img/no-group.png" mode="scaleToFill"
-          lazy-load="false">
+      <view class="no-data"
+            wx:if="{{groups.length === 0}}">
+        <image class="icon"
+               src="../assets/img/no-group.png"
+               mode="scaleToFill"
+               lazy-load="false">
         </image>
         <view class="text text-gray">您暂无分类，<text class="text-blue">请添加</text></view>
       </view>
-      <view class="list" wx:else>
-        <repeat for="{{groups}}" key="index" index="index" item="item">
-          <view class="card padding-lg shadow margin-bottom-sm bg-white" @tap="handleAccount(item._id)">
-            <image src="{{item.logo || '../assets/img/icon-type.png'}}" mode="scaleToFill"
-              lazy-load="false">
+      <view class="list"
+            wx:else>
+        <repeat for="{{groups}}"
+                key="index"
+                index="index"
+                item="item">
+          <view class="card padding-lg shadow margin-bottom-sm bg-white"
+                @tap="handleAccount({{item}})">
+            <image src="{{item.logo || '../assets/img/icon-type.png'}}"
+                   mode="scaleToFill"
+                   lazy-load="false">
             </image>
             <view class="intro">
               <view class="header">{{item.name}}</view>
@@ -20,7 +29,9 @@
             </view>
             <view class="actions">
               <view class="time">{{item.updated_at}}</view>
-              <button id="setting" class="setting cu-btn round lines-blue shadow">设置</button>
+              <button id="setting"
+                      class="setting cu-btn round lines-blue shadow"
+                      @tap="handleSet({{item}})">设置</button>
             </view>
           </view>
         </repeat>
@@ -41,6 +52,7 @@
   import wepy from 'wepy'
   import TabBar from '../components/TabBar'
   import { $Message } from '../iview/base/index'
+  import { deleteGroup } from '../services/group'
 
   export default class Group extends wepy.page {
     config = {
@@ -54,7 +66,10 @@
 
     data = {
       userInfo: null,
-      groups: []
+      groups: [],
+      activeGroup: null,
+      visible: false,
+      actions: [{ name: '编辑类型', color: '#1890FF' }, { name: '删除类型', color: '#ed3f14' }]
     }
 
     onLoad() {
@@ -64,12 +79,67 @@
     }
 
     methods = {
-      handleAccount(id, e) {
+      handleAccount(item, e) {
         if (e.target.id) return
         wx.navigateTo({
-          url: `./account-list?groupId=${id}`
+          url: `./account-list?groupId=${item._id}`
         })
+      },
+      handleSet(item) {
+        this.visible = true
+        this.activeGroup = item
+      },
+      handleClickItem(e) {
+        this.visible = false
+        if (e.detail.index === 0) {
+          wx.navigateTo({
+            url: `./edit-group?groupId=${this.activeGroup._id}`
+          })
+        }
+        if (e.detail.index === 1) {
+          this.deleteData()
+        }
+      },
+      handleCancel() {
+        this.visible = false
       }
+    }
+    // 删除分组
+    deleteData() {
+      const _self = this
+      wx.showModal({
+        title: '提示',
+        content: '删除类型，同时将删除该类型下的账号，您确定要删除吗？',
+        cancelColor: '#999999',
+        confirmColor: '#1890FF',
+        success(res) {
+          if (res.confirm) {
+            wx.showLoading({ title: '删除中...', mask: true })
+            deleteGroup(_self.activeGroup._id)
+              .then(res => {
+                wx.hideLoading()
+                if (res.head.code === 1) {
+                  const index = _self.groups.findIndex(item => item._id === _self.activeGroup._id)
+                  _self.groups.splice(index, 1)
+                  wx.setStorageSync('groups', _self.groups)
+                  $Message({
+                    content: '删除类型成功',
+                    type: 'success'
+                  })
+                } else {
+                  $Message({
+                    content: '删除类型失败',
+                    type: 'error'
+                  })
+                }
+                _self.$apply()
+              })
+              .catch(err => {
+                console.log(err)
+              })
+          }
+        }
+      })
     }
   }
 </script>
