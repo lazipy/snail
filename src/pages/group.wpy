@@ -26,14 +26,21 @@
         </repeat>
       </view>
     </view>
+    <i-action-sheet visible="{{ visible }}"
+                    actions="{{ actions }}"
+                    show-cancel
+                    bind:cancel="handleCancel"
+                    bind:click="handleClickItem" />
     <!-- TabBar -->
     <tab-bar current="Group" />
+    <i-message id="message" />
   </view>
 </template>
 
 <script>
   import wepy from 'wepy'
   import TabBar from '../components/TabBar'
+  import { $Message } from '../iview/base/index'
 
   export default class Group extends wepy.page {
     config = {
