@@ -1,140 +1,41 @@
 <template>
   <view class="container">
-    <view class="panel">
-      <image class="avatar" src="{{userInfo.avatar}}" mode="scaleToFill"
-        lazy-load="false">
-      </image>
-      <view class="name">{{userInfo.name}}</view>
-    </view>
-    <view class="cell-group">
-      <view class="cell" @tap="handleMobile">
-        <image class="icon" src="../assets/img/profile.png" mode="scaleToFill"
-          lazy-load="false">
-        </image>
-        <view class="label">个人资料</view>
-        <image class="arrow" src="../assets/img/arrow_right.png" mode="scaleToFill"
-          lazy-load="false">
-        </image>
-      </view>
-      <view class="cell" @tap="handleMobile">
-        <image class="icon" src="../assets/img/mobile.png" mode="scaleToFill"
-          lazy-load="false">
-        </image>
-        <view class="label">绑定手机号</view>
-        <image class="arrow" src="../assets/img/arrow_right.png" mode="scaleToFill"
-          lazy-load="false">
-        </image>
-      </view>
-    </view>
-    <button @tap="logout">退出登录</button>
-    <tab-bar current="mine" />
+    <!-- content body -->
+    <view class="content">我的</view>
+    <!-- TabBar -->
+    <tab-bar current="Mine" />
   </view>
 </template>
 
 <script>
   import wepy from 'wepy'
-  import TabBar from '@/components/TabBar'
+  import TabBar from '../components/TabBar'
 
   export default class Mine extends wepy.page {
     config = {
-      navigationBarTitleText: '我的'
+      navigationBarTitleText: '我的',
+      navigationBarTextStyle: 'white'
     }
+
     components = {
       'tab-bar': TabBar
     }
-    data = {
-      userInfo: null
-    }
+
     onLoad() {
-      this.userInfo = wx.getStorageSync('userInfo')
-    }
-    methods = {
-      handleMobile() {
-        wx.showToast({ title: '更多功能敬请期待', icon: 'none' })
-      },
-      logout() {
-        wx.clearStorageSync()
-        wx.reLaunch({ url: './login' })
-      }
+      wx.hideTabBar()
     }
   }
 </script>
 
 <style lang="scss" scoped>
   .container {
-    background-color: #f2f2f2;
     display: flex;
     flex-direction: column;
     height: 100vh;
-    padding-bottom: 50px;
-    .panel {
-      padding: 50rpx 30rpx;
-      background-color: #fff;
-      text-align: center;
-      .avatar {
-        width: 140rpx;
-        height: 140rpx;
-        border-radius: 50%;
-      }
-      .name {
-        margin-top: 20rpx;
-        font-family: 'PingFang-SC-Medium';
-        font-size: 32rpx;
-        color: #787878;
-      }
-    }
-    .cell-group {
-      margin-top: 20rpx;
-      padding: 0 30rpx;
-      background-color: #fff;
-      .cell {
-        position: relative;
-        display: flex;
-        align-items: center;
-        height: 108rpx;
-        &:not(:last-child)::after {
-          position: absolute;
-          content: ' ';
-          width: 100%;
-          left: 0;
-          bottom: 0;
-          height: 1px;
-          background-color: #e5e5e5;
-          -webkit-transform: scale(1, 0.5);
-          transform: scale(1, 0.5);
-          -webkit-transform-origin: center bottom;
-          transform-origin: center bottom;
-        }
-        .icon {
-          width: 42rpx;
-          height: 42rpx;
-        }
-        .label {
-          flex: 1;
-          margin-left: 15rpx;
-          font-family: 'PingFang-SC-Medium';
-          font-size: 30rpx;
-          color: #666666;
-        }
-        .arrow {
-          width: 12rpx;
-          height: 24rpx;
-        }
-      }
-    }
-    button {
-      margin-top: 60rpx;
-      width: 690rpx;
-      height: 96rpx;
-      line-height: 96rpx;
-      font-family: 'PingFang-SC-Medium';
-      font-weight: 500;
-      font-size: 36rpx;
-      background: linear-gradient(to left, #6f7bfd, #51a6fd), linear-gradient(to bottom, #ff7373, #ff7373);
-      color: #ffffff;
-      &::after {
-        border: none;
-      }
-    }
+    padding-bottom: 135rpx;
+  }
+  .content {
+    flex: 1;
+    overflow: auto;
   }
 </style>

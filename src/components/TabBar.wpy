@@ -1,45 +1,45 @@
 <template>
-  <i-tab-bar current="{{ current }}"
-             fixed
-             color="#868AFF"
-             bindchange="handleChange">
-    <i-tab-bar-item key="home"
-                    img="../../assets/img/icon-home.png"
-                    current-img="../../assets/img/icon-home-active.png"
-                    title="最新"></i-tab-bar-item>
-    <i-tab-bar-item key="group"
-                    img="../../assets/img/icon-cate.png"
-                    current-img="../../assets/img/icon-cate-active.png"
-                    title="类型"></i-tab-bar-item>
-    <i-tab-bar-item key="publish"
-                    img="../../assets/img/icon-navigator.png"
-                    current-img="../../assets/img/icon-navigator.png"></i-tab-bar-item>
-    <i-tab-bar-item key="flag"
-                    img="../../assets/img/icon-flag.png"
-                    current-img="../../assets/img/icon-flag-active.png"
-                    title="星标"></i-tab-bar-item>
-    <i-tab-bar-item key="mine"
-                    img="../../assets/img/icon-mine.png"
-                    current-img="../../assets/img/icon-mine-active.png"
-                    title="我的"></i-tab-bar-item>
-  </i-tab-bar>
+  <view class="cu-bar tabbar bg-white fixed-bottom">
+    <view class="action text-{{current === 'Home' ? 'blue' : 'gray'}}" @tap="handleChange('home')">
+      <view class="icon-home"></view>
+      首页
+    </view>
+    <view class="action text-{{current === 'Group' ? 'blue' : 'gray'}}" @tap="handleChange('group')">
+      <view class="icon-similar"></view>
+      分类
+    </view>
+    <view class="action text-{{current === 'Publish' ? 'blue' : 'gray'}} add-action" @tap="handleChange('publish')">
+      <button class="cu-btn icon-add bg-blue shadow"></button>
+      发布
+    </view>
+    <view class="action text-{{current === 'Flag' ? 'blue' : 'gray'}}" @tap="handleChange('flag')">
+      <view class="icon-cart"></view>
+      星标
+    </view>
+    <view class="action text-{{current === 'Mine' ? 'blue' : 'gray'}}" @tap="handleChange('mine')">
+      <view class="icon-my"></view>
+      我的
+    </view>
+  </view>
 </template>
 
 <script>
   import wepy from 'wepy'
+
   export default class TabBar extends wepy.component {
-    isComponent = true
     name = 'TabBar'
+    isComponent = true
+
     props = {
       current: {
-        type: String,
-        toWay: true
+        type: String
       }
     }
+
     methods = {
-      handleChange (e) {
+      handleChange(url) {
         wx.switchTab({
-          url: e.detail.key
+          url: url
         })
       }
     }
@@ -47,4 +47,11 @@
 </script>
 
 <style lang="scss" scoped>
+  .fixed-bottom {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100rpx;
+  }
 </style>

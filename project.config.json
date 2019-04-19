@@ -37,7 +37,7 @@
 			"list": []
 		},
 		"miniprogram": {
-			"current": 6,
+			"current": 7,
 			"list": [
 				{
 					"id": -1,
@@ -84,6 +84,13 @@
 					"id": -1,
 					"name": "pages/flag",
 					"pathName": "pages/flag",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "pages/register",
+					"pathName": "pages/register",
 					"scene": null
 				}
 			]

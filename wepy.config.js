@@ -4,7 +4,7 @@ const projectConfig = require('./project.config.json') // 导入项目的配置�
 
 module.exports = {
   wpyExt: '.wpy',
-  eslint: true,
+  eslint: false,
   cliLogs: !prod,
   build: {},
   resolve: {

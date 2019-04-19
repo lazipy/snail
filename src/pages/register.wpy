@@ -1,0 +1,191 @@
+<template>
+  <view class="container padding-lr-lg">
+    <image class="logo"
+           src="../assets/img/logo.png"
+           mode="scaleToFill"
+           lazy-load="false">
+    </image>
+    <form>
+      <view class="cu-form-group solid-bottom margin-top">
+        <input type="number"
+               placeholder="请输入手机号"
+               maxlength="{{11}}"
+               value="{{formData.mobile}}"
+               @input="inputChange('mobile')" />
+        <view class="cu-capsule radius">
+          <view class="cu-tag bg-blue">
+            +86
+          </view>
+          <view class="cu-tag line-blue">
+            中国大陆
+          </view>
+        </view>
+      </view>
+      <view class="cu-form-group solid-bottom margin-top">
+        <input type="number"
+               placeholder="请输入验证码"
+               maxlength="{{6}}"
+               value="{{formData.code}}"
+               @input="inputChange('code')" />
+        <button class="cu-btn bg-white shadow btn-code"
+                @tap="getSmsCode"
+                disabled="{{time}}">
+          {{time ? time + 's 重新获取' : '获取验证码'}}
+        </button>
+      </view>
+    </form>
+    <button class="cu-btn bg-blue block lg btn-register"
+            open-type="getUserInfo"
+            @getuserinfo="register">注册</button>
+    <text class="fr text-blue align-right padding-sm"
+          @tap="handleLogin">已有账号，立即登录</text>
+    <!-- <button class="wechat"
+            plain>
+      <image src="../assets/img/wechat.png"
+             mode="scaleToFill"
+             lazy-load="false">
+      </image>
+      <text>微信登录</text>
+    </button> -->
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { sendSmsCode } from '../services/sms'
+
+  export default class Register extends wepy.page {
+    config = {
+      navigationBarTitleText: '注册',
+      navigationBarTextStyle: 'white'
+    }
+
+    data = {
+      sendForm: {
+        mobile: '',
+        type: 0
+      },
+      time: 0,
+      formData: {
+        mobile: '',
+        code: '',
+        type: 0
+      }
+    }
+
+    methods = {
+      // 输入表单
+      inputChange(key, e) {
+        if (key === 'mobile') {
+          this.sendForm[key] = e.detail.value
+        }
+        this.formData[key] = e.detail.value
+      },
+      // 发送验证码
+      getSmsCode() {
+        if (!this.sendForm.mobile) {
+          wx.showToast({ title: '请输入手机号', icon: 'none' })
+          return
+        }
+        if (!/^1[34578]\d{9}$/.test(this.sendForm.mobile)) {
+          wx.showToast({ title: '请输入正确的手机号', icon: 'none' })
+          return
+        }
+        wx.showLoading({ title: '获取中...', mask: true })
+        sendSmsCode(this.sendForm)
+          .then(res => {
+            wx.hideLoading()
+            if (res.head.code === 1) {
+              // 倒计时
+              this.time = 60
+              this.$apply()
+              let timer = setInterval(() => {
+                this.time -= 1
+                this.$apply()
+                if (this.time === 0) clearInterval(timer)
+              }, 1000)
+            } else {
+              wx.showToast({ title: '验证码发送失败，请重试~', icon: 'none' })
+            }
+          })
+          .catch(err => {
+            console.log(err)
+          })
+      },
+      // 注册
+      register(e) {
+        if (!this.formData.mobile) {
+          wx.showToast({ title: '请输入手机号', icon: 'none' })
+          return
+        }
+        if (!/^1[34578]\d{9}$/.test(this.formData.mobile)) {
+          wx.showToast({ title: '请输入正确的手机号', icon: 'none' })
+          return
+        }
+        if (!this.formData.code) {
+          wx.showToast({ title: '请输入短信验证码', icon: 'none' })
+        }
+        if (!e.detail.encryptedData) {
+          wx.showToast({ title: '请同意微信授权，否则将无法正常使用', icon: 'none' })
+          return
+        }
+      },
+      // 去登录
+      handleLogin() {
+        wx.redirectTo({
+          url: './login'
+        })
+      }
+    }
+  }
+</script>
+
+<style lang="scss" scoped>
+  .container {
+    min-height: 100vh;
+    background-color: #fff;
+    padding-top: 100rpx;
+    .logo {
+      display: block;
+      width: 140rpx;
+      height: 140rpx;
+      margin: 0 auto 120rpx;
+    }
+    .btn-code {
+      border: none;
+      box-shadow: none;
+      padding: 0;
+      &[disabled] {
+        background-color: #fff;
+      }
+    }
+    .btn-register {
+      margin-top: 90rpx;
+    }
+    .align-right {
+      text-align: right;
+    }
+    .wechat {
+      margin-top: 130rpx;
+      width: 100rpx;
+      line-height: 1;
+      border: none;
+      padding: 0;
+      text-align: center;
+      image {
+        width: 80rpx;
+        height: 80rpx;
+      }
+      text {
+        font-size: 24rpx;
+        color: #666666;
+      }
+    }
+  }
+  .cu-form-group {
+    padding: 0;
+  }
+  .cu-form-group + .cu-form-group {
+    border-top: none;
+  }
+</style>

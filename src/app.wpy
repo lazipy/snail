@@ -1,6 +1,8 @@
-<style lang="scss">
-  @import './styles/index';
+<style>
+  @import 'styles/main.wxss';
+  @import 'styles/icon.wxss';
 </style>
+
 
 <script>
   import wepy from 'wepy'
@@ -8,30 +10,16 @@
 
   // 初始化云服务
   wx.cloud.init({
-    env: 'prod-c73daa',
+    env: 'snail-4607b6',
     traceUser: true
   })
 
   export default class extends wepy.app {
     config = {
-      pages: [
-        'pages/home',
-        'pages/account-detail',
-        'pages/add-account',
-        'pages/edit-account',
-        'pages/group',
-        'pages/add-group',
-        'pages/edit-group',
-        'pages/account-list',
-        'pages/publish',
-        'pages/flag',
-        'pages/mine',
-        'pages/login',
-        'pages/vip-intro'
-      ],
+      pages: ['pages/home', 'pages/login', 'pages/register', 'pages/group', 'pages/publish', 'pages/flag', 'pages/mine'],
       window: {
         navigationBarTitleText: '蜗牛账号管家',
-        navigationBarBackgroundColor: '#6f7bfd',
+        navigationBarBackgroundColor: '#1890FF',
         navigationBarTextStyle: 'white'
       },
       usingComponents: {
@@ -49,16 +37,16 @@
         'i-notice-bar': './iview/notice-bar/index',
         'i-swipeout': './iview/swipeout/index'
       },
-      'tabBar': {
+      tabBar: {
         color: '#999999',
         selectedColor: '#868AFF',
         backgroundColor: '#ffffff',
-        'list': [
-          { 'pagePath': 'pages/home', 'text': '最新' },
-          { 'pagePath': 'pages/group', 'text': '类型' },
-          { 'pagePath': 'pages/publish', 'text': '发布' },
-          { 'pagePath': 'pages/flag', 'text': '星标' },
-          { 'pagePath': 'pages/mine', 'text': '我的' }
+        list: [
+          { pagePath: 'pages/home', text: '最新' },
+          { pagePath: 'pages/group', text: '类型' },
+          { pagePath: 'pages/publish', text: '发布' },
+          { pagePath: 'pages/flag', text: '星标' },
+          { pagePath: 'pages/mine', text: '我的' }
         ]
       }
     }
