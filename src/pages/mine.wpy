@@ -15,37 +15,37 @@
         <view class="cu-item arrow">
           <view class="content">
             <text class="icon-profile text-blue"></text>
-            <text class="text-grey">编辑资料</text>
+            <text class="text-gray">编辑资料</text>
           </view>
         </view>
         <view class="cu-item arrow">
           <view class="content">
             <text class="icon-mobile text-blue"></text>
-            <text class="text-grey">绑定手机号</text>
+            <text class="text-gray">绑定手机号</text>
           </view>
         </view>
         <view class="cu-item arrow">
           <view class="content">
             <text class="icon-we text-blue"></text>
-            <text class="text-grey">开启指纹</text>
+            <text class="text-gray">开启指纹</text>
           </view>
         </view>
         <view class="cu-item arrow">
           <view class="content">
             <text class="icon-question text-blue"></text>
-            <text class="text-grey">帮助中心</text>
+            <text class="text-gray">帮助中心</text>
           </view>
         </view>
         <view class="cu-item arrow">
           <view class="content">
             <text class="icon-write text-blue"></text>
-            <text class="text-grey">问题反馈</text>
+            <text class="text-gray">问题反馈</text>
           </view>
         </view>
         <view class="cu-item arrow">
           <view class="content">
             <text class="icon-text text-blue"></text>
-            <text class="text-grey">更新日志</text>
+            <text class="text-gray">更新日志</text>
           </view>
         </view>
       </view>
@@ -113,7 +113,8 @@
         }
         .name {
           font-size: 30rpx;
-          color: #666666;
+          font-weight: bold;
+          color: #333333;
           margin-top: 20rpx;
         }
         .mobile {
@@ -122,6 +123,9 @@
           margin-top: 12rpx;
         }
       }
+    }
+    .cu-item .text-gray {
+      color: #666666;
     }
   }
 </style>

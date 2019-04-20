@@ -9,7 +9,7 @@
                mode="scaleToFill"
                lazy-load="false">
         </image>
-        <view class="text text-gray">您暂无分类，<text class="text-blue">请添加</text></view>
+        <view class="text text-gray" @tap="addGroup">您暂无分类，<text class="text-blue">请添加</text></view>
       </view>
       <view class="list"
             wx:else>
@@ -87,6 +87,11 @@
     }
 
     methods = {
+      addGroup() {
+        wx.navigateTo({
+          url: './add-group'
+        })
+      },
       handleAccount(item, e) {
         if (e.target.id) return
         wx.navigateTo({
@@ -167,12 +172,13 @@
     .no-data {
       height: 100%;
       text-align: center;
-      padding-top: 200rpx;
+      padding-top: 260rpx;
       image {
-        width: 400rpx;
-        height: 326rpx;
+        width: 340rpx;
+        height: 278rpx;
       }
       .text {
+        margin-top: 60rpx;
         padding: 20rpx;
         font-size: 28rpx;
       }

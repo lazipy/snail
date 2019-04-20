@@ -1,9 +1,9 @@
 <template>
   <view class="container">
     <view class="cu-list menu">
-      <view class="cu-item arrow solid-bottom" @tap="handleAvatarTap">
+      <view class="cu-item arrow" @tap="handleAvatarTap">
         <view class="content">
-          <text class="text-black">头像</text>
+          <text style="color: #333333;">头像</text>
           <image class="avatar"
                  src="{{formData.logo || '../assets/img/icon-type.png'}}"
                  mode="scaleToFill"
@@ -183,6 +183,7 @@
     }
     .cu-form-group input {
       text-align: right;
+      padding-right: 0;
     }
   }
 </style>

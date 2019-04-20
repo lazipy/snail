@@ -3,7 +3,6 @@
   @import 'styles/icon.wxss';
 </style>
 
-
 <script>
   import wepy from 'wepy'
   import 'wepy-async-function'
@@ -18,6 +17,9 @@
     config = {
       pages: [
         'pages/home',
+        'pages/add-account',
+        'pages/account-detail',
+        'pages/edit-account',
         'pages/login',
         'pages/register',
         'pages/group',

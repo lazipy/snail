@@ -43,16 +43,25 @@
     }
 
     data = {
-      userInfo: null
+      userInfo: null,
+      groups: []
     }
 
     onLoad() {
       wx.hideTabBar()
+    }
+
+    onShow() {
       this.userInfo = wx.getStorageSync('userInfo')
+      this.groups = wx.getStorageSync('groups')
     }
 
     methods = {
       handleAccount() {
+        if (this.groups.length === 0) {
+          wx.showToast({ title: '您尚未拥有账号类型，请先添加一个账号类型', icon: 'none' })
+          return
+        }
         wx.navigateTo({
           url: 'add-account'
         })

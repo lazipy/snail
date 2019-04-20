@@ -1,0 +1,155 @@
+<template>
+  <view class="container">
+    <view class="cu-list menu">
+      <view class="cu-item">
+        <view class="content">
+          <text class="text-grey">标题</text>
+        </view>
+        <view class="action">
+          <text class="text-grey text-sm">{{accountInfo.title}}</text>
+        </view>
+      </view>
+      <view class="cu-item"
+            @tap="copy({{accountInfo.number}}, '账号')">
+        <view class="content">
+          <text class="text-grey">账号</text>
+        </view>
+        <view class="action">
+          <text class="text-grey text-sm">{{accountInfo.number}}</text>
+        </view>
+      </view>
+      <view class="cu-item"
+            @tap="copy({{accountInfo.number}}, '密码')"
+            wx:if="{{accountInfo.password}}">
+        <view class="content">
+          <text class="text-grey">密码</text>
+        </view>
+        <view class="action">
+          <text class="text-grey text-sm">{{accountInfo.hidden ? '******' : accountInfo.password}}</text>
+        </view>
+      </view>
+      <view class="cu-item">
+        <view class="content">
+          <text class="text-grey">密码是否密文显示</text>
+        </view>
+        <view class="action">
+          <text class="text-grey text-sm">{{accountInfo.hidden ? '是' : '否'}}</text>
+        </view>
+      </view>
+      <view class="cu-item">
+        <view class="content">
+          <text class="text-grey">密码提示</text>
+        </view>
+        <view class="action">
+          <text class="text-grey text-sm">{{accountInfo.description}}</text>
+        </view>
+      </view>
+      <view class="cu-item">
+        <view class="content">
+          <text class="text-grey">类型</text>
+        </view>
+        <view class="action text-cut">
+          <text class="text-grey text-sm">{{accountInfo.group_name}}</text>
+        </view>
+      </view>
+    </view>
+    <view class="cu-bar bg-white tabbar border shop">
+      <view wx:if="{{accountInfo.flag}}"
+            @tap="flag({{0}})"
+            class="action text-orange">
+        <view class="icon-favorfill"></view> 已星标
+      </view>
+      <view wx:else
+            class="action text-gray"
+            @tap="flag({{1}})">
+        <view class="icon-favor"></view> 星标
+      </view>
+      <view class="action text-red" @tap="removeAccount">
+        <view class="icon-delete"></view> 删除
+      </view>
+      <view class="bg-blue submit" @tap="edit">立即编辑</view>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { flagAccount, deleteAccount } from '../services/account'
+
+  export default class AcountDetail extends wepy.page {
+    config = {
+      navigationBarTitleText: '账号详情'
+    }
+    data = {
+      userInfo: null,
+      accounts: [],
+      id: '',
+      accountIndex: -1,
+      accountInfo: null
+    }
+    onLoad(options) {
+      this.id = options.id
+    }
+    onShow() {
+      this.userInfo = wx.getStorageSync('userInfo')
+      this.accounts = wx.getStorageSync('accounts')
+      this.accountIndex = this.accounts.findIndex(item => item._id === this.id)
+      this.accountInfo = this.accounts[this.accountIndex]
+    }
+    methods = {
+      copy(val, key) {
+        wx.setClipboardData({
+          data: val,
+          success() {
+            wx.showToast({ title: `${key}已复制`, icon: 'none' })
+          }
+        })
+      },
+      flag(flag) {
+        this.accountInfo.flag = flag
+        flagAccount(this.accountInfo._id, flag)
+          .then(res => {
+            if (res.head.code === 1) {
+              this.accounts[this.accountIndex].flag = flag
+              wx.setStorageSync('accounts', this.accounts)
+            }
+          })
+          .catch(err => {
+            console.log(err)
+          })
+      },
+      removeAccount() {
+
+      },
+      edit() {
+        wx.navigateTo({
+          url: `./edit-account?id=${this.accountInfo._id}`
+        })
+      }
+    }
+  }
+</script>
+
+<style lang="scss" scoped>
+  .container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+  .cu-list {
+    flex: 1;
+  }
+  .cu-item {
+    .content {
+      flex: 0;
+    }
+    .action {
+      flex: 1;
+      text-align: right;
+    }
+  }
+  .cu-bar {
+    width: 100%;
+    height: 100rpx;
+  }
+</style>

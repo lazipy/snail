@@ -1,13 +1,80 @@
 <template>
   <view class="container">
+    <view class="cu-bar search bg-white solid-bottom">
+      <view class="search-form round">
+        <text class="icon-search"></text>
+        <input type="text"
+               placeholder="请输入账号标题"
+               value="{{keyword}}"
+               @input="changeKeyword"
+               confirm-type="search"></input>
+      </view>
+      <view class="action">
+        <button class="cu-btn bg-green shadow-blur round"
+                @tap="search">搜索</button>
+      </view>
+    </view>
     <!-- content body -->
     <view class="content">
       <!-- no-data -->
-      <view class="no-data" wx:if="{{accounts.length === 0}}">
-        <image class="icon" src="../assets/img/no-account.png" mode="scaleToFill"
-          lazy-load="false">
+      <view class="no-data"
+            wx:if="{{accounts.length === 0}}">
+        <image class="icon"
+               src="../assets/img/no-account.png"
+               mode="scaleToFill"
+               lazy-load="false">
         </image>
-        <view class="text text-gray">您暂无账号，<text class="text-blue">请添加</text></view>
+        <view class="text text-gray"
+              @tap="addAccount">您暂无账号，<text class="text-blue">请添加</text></view>
+      </view>
+      <view class="list"
+            wx:else>
+        <repeat for="{{accounts}}"
+                key="index"
+                index="index"
+                item="item">
+          <view class="card shadow margin-bottom-lg bg-white">
+            <view class="header solid-bottom"
+                  @tap="checkDetail({{item}})">
+              <image class="icon"
+                     src="{{item.logo || '../assets/img/icon-type.png'}}"
+                     mode="scaleToFill"
+                     lazy-load="false">
+              </image>
+              <view class="title text-cut">{{item.title}}</view>
+              <image class="arrow"
+                     src="../assets/img/arrow.png"
+                     mode="scaleToFill"
+                     lazy-load="false">
+              </image>
+            </view>
+            <view class="body">
+              <view class="cell">
+                <view class="label">账号</view>
+                <view class="value text-cut">{{item.number}}</view>
+              </view>
+              <view class="cell"
+                    wx:if="{{item.password}}">
+                <view class="label">密码</view>
+                <view class="value text-cut">{{item.hidden ? '******' : item.password}}</view>
+                <image wx:if="{{item.hidden}}"
+                       @tap="toggle({{item}})"
+                       class="eye"
+                       src="../assets/img/eye.png"
+                       mode="scaleToFill"
+                       lazy-load="false">
+                </image>
+                <image wx:else
+                       class="eye"
+                       @tap="toggle({{item}})"
+                       src="../assets/img/eye-open.png"
+                       mode="scaleToFill"
+                       lazy-load="false">
+                </image>
+              </view>
+            </view>
+          </view>
+        </repeat>
       </view>
       <!-- 加载 -->
       <view class='cu-load load-modal'
@@ -42,6 +109,7 @@
     data = {
       loadModal: false,
       userInfo: null,
+      keyword: '',
       accounts: []
     }
 
@@ -56,6 +124,45 @@
         this.getData()
       }
     }
+
+    onShow() {
+      const accounts = wx.getStorageSync('accounts')
+      if (accounts) {
+        this.accounts = accounts
+      }
+    }
+
+    methods = {
+      changeKeyword(e) {
+        this.keyword = e.detail.value
+      },
+      search() {
+        if (!this.keyword) {
+          this.accounts = wx.getStorageSync('accounts')
+        } else {
+          this.accounts = this.accounts.filter(item => item.title.includes(this.keyword))
+        }
+      },
+      addAccount() {
+        wx.navigateTo({
+          url: './add-account'
+        })
+      },
+      checkDetail(val) {
+        wx.navigateTo({
+          url: `./account-detail?id=${val._id}`
+        })
+      },
+      toggle(val) {
+        let index = this.accounts.findIndex(item => item._id === val._id)
+        if (val.hidden) {
+          this.accounts[index].hidden = false
+        } else {
+          this.accounts[index].hidden = true
+        }
+      }
+    }
+
     getData() {
       this.loadModal = true
       Promise.all([
@@ -65,7 +172,11 @@
       ])
         .then(res => {
           this.loadModal = false
-          this.accounts = res[0].body.data
+          this.accounts = res[0].body.data.map(item => {
+            let group = res[2].body.data.find(val => val._id === item.group_id)
+            item.logo = group.logo
+            return item
+          })
           wx.setStorageSync('accounts', res[0].body.data)
           wx.setStorageSync('flagAccounts', res[1].body.data)
           wx.setStorageSync('groups', res[2].body.data)
@@ -101,6 +212,58 @@
       .text {
         padding: 20rpx;
         font-size: 28rpx;
+      }
+    }
+    .list {
+      padding: 30rpx;
+      .header {
+        display: flex;
+        align-items: center;
+        height: 100rpx;
+        line-height: 100rpx;
+        padding: 30rpx;
+        .icon {
+          width: 60rpx;
+          height: 60rpx;
+        }
+        .title {
+          margin-left: 20rpx;
+          flex: 1;
+          color: #333333;
+          font-weight: bold;
+        }
+        .arrow {
+          width: 48rpx;
+          height: 48rpx;
+        }
+      }
+      .body {
+        padding: 30rpx 0;
+        .cell {
+          display: flex;
+          align-items: center;
+          height: 60rpx;
+          line-height: 60rpx;
+          margin-bottom: 30rpx;
+          padding: 0 30rpx;
+          &:last-child {
+            margin-bottom: 0;
+          }
+          .label {
+            color: #333333;
+          }
+          .value {
+            flex: 1;
+            color: #333333;
+            text-align: right;
+          }
+          .eye {
+            margin-left: 20rpx;
+            width: 50rpx;
+            height: 50rpx;
+            padding: 5rpx;
+          }
+        }
       }
     }
   }

@@ -24,9 +24,10 @@ export async function addAccount(data) {
         updated_at: dayjs().format('YYYY-MM-DD HH:mm:ss')
       }
     })
+    const res = await AccountModal.doc(result._id).get()
     return {
       head: { code: 1, message: '添加账号成功' },
-      body: { data: result }
+      body: { data: res.data }
     }
   } catch (err) {
     console.log(err)
@@ -60,7 +61,7 @@ export async function queryGroupAccounts(data) {
     const result = await AccountModal.where({
       user_id: data.userId,
       group_id: data.groupId
-    }).orderBy('updated_at', 'desc').get()
+    }).get()
     return {
       head: { code: 1, message: '获取用户类型下的账号成功' },
       body: { data: result.data }
@@ -83,6 +84,71 @@ export async function queryFlagAccounts(userId) {
     return {
       head: { code: 1, message: '获取用户的星标账号成功' },
       body: { data: result.data }
+    }
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+/**
+ * 星标账号
+ * @param {userId}
+ */
+export async function flagAccount(id, flag) {
+  try {
+    const result = await AccountModal.doc(id).update({
+      data: {
+        flag,
+        updated_at: dayjs().format('YYYY-MM-DD HH:mm:ss')
+      }
+    })
+    return {
+      head: { code: 1, message: '星标账号成功' },
+      body: { data: result }
+    }
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+/**
+ * 编辑账号
+ * @param {id, userId, title, number, password, hidden, description, groupId, groupName, flag}
+ */
+export async function editAccount(data) {
+  try {
+    await AccountModal.doc(data.id).update({
+      data: {
+        user_id: data.userId,
+        title: data.title,
+        number: data.number,
+        password: data.password,
+        hidden: data.hidden,
+        description: data.description,
+        group_id: data.groupId,
+        group_name: data.groupName,
+        updated_at: dayjs().format('YYYY-MM-DD HH:mm:ss')
+      }
+    })
+    const res = await AccountModal.doc(data.id).get()
+    return {
+      head: { code: 1, message: '编辑账号成功' },
+      body: { data: res.data }
+    }
+  } catch (err) {
+    console.log(err)
+  }
+}
+/**
+ * 删除账号
+ * @param {userId}
+ */
+export async function deleteAccount(id) {
+  try {
+    const result = await AccountModal.doc(id).remove()
+    return {
+      head: { code: 1, message: '该账号已删除' },
+      body: { data: result }
     }
   } catch (err) {
     console.log(err)
