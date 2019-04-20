@@ -64,16 +64,20 @@
             @tap="flag({{1}})">
         <view class="icon-favor"></view> 星标
       </view>
-      <view class="action text-red" @tap="removeAccount">
+      <view class="action text-red"
+            @tap="removeAccount">
         <view class="icon-delete"></view> 删除
       </view>
-      <view class="bg-blue submit" @tap="edit">立即编辑</view>
+      <view class="bg-blue submit"
+            @tap="edit">立即编辑</view>
     </view>
+    <i-message id="message" />
   </view>
 </template>
 
 <script>
   import wepy from 'wepy'
+  import { $Message } from '../iview/base/index'
   import { flagAccount, deleteAccount } from '../services/account'
 
   export default class AcountDetail extends wepy.page {
@@ -83,6 +87,7 @@
     data = {
       userInfo: null,
       accounts: [],
+      flagAccounts: [],
       id: '',
       accountIndex: -1,
       accountInfo: null
@@ -93,6 +98,7 @@
     onShow() {
       this.userInfo = wx.getStorageSync('userInfo')
       this.accounts = wx.getStorageSync('accounts')
+      this.flagAccounts = wx.getStorageSync('flagAccounts')
       this.accountIndex = this.accounts.findIndex(item => item._id === this.id)
       this.accountInfo = this.accounts[this.accountIndex]
     }
@@ -112,6 +118,13 @@
             if (res.head.code === 1) {
               this.accounts[this.accountIndex].flag = flag
               wx.setStorageSync('accounts', this.accounts)
+              const accountIndex = this.flagAccounts.findIndex(item => item._id === this.id)
+              if (flag) {
+                this.flagAccounts.unshift(this.accountInfo)
+              } else {
+                this.flagAccounts.splice(accountIndex, 1)
+              }
+              wx.setStorageSync('flagAccounts', this.flagAccounts)
             }
           })
           .catch(err => {
@@ -119,7 +132,45 @@
           })
       },
       removeAccount() {
-
+        const _self = this
+        wx.showModal({
+          title: '提示',
+          content: '您确定要删除该账号吗？',
+          cancelColor: '#999999',
+          confirmColor: '#6f7bfd',
+          success(res) {
+            if (res.confirm) {
+              wx.showLoading({ title: '删除中...', mask: true })
+              deleteAccount(_self.accountInfo._id)
+                .then(res => {
+                  wx.hideLoading()
+                  _self.accounts.splice(_self.accountIndex, 1)
+                  wx.setStorageSync('accounts', _self.accounts)
+                  if (_self.accountInfo.flag) {
+                    const accountIndex = _self.flagAccounts.findIndex(item => item._id === _self.id)
+                    _self.flagAccounts.splice(accountIndex, 1)
+                    wx.setStorageSync('flagAccounts', _self.flagAccounts)
+                  }
+                  $Message({
+                    content: '删除账号成功',
+                    type: 'success'
+                  })
+                  setTimeout(() => {
+                    wx.navigateBack({
+                      delta: 1
+                    })
+                  }, 800)
+                })
+                .catch(err => {
+                  $Message({
+                    content: '删除账号失败',
+                    type: 'error'
+                  })
+                  console.log(err)
+                })
+            }
+          }
+        })
       },
       edit() {
         wx.navigateTo({

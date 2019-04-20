@@ -44,9 +44,9 @@ export async function registerUser(data) {
     await GroupModal.add({
       data: {
         user_id: result._id,
-        logo: '',
+        logo: '../assets/img/work.png',
         name: '工作',
-        description: '工作相关的账号信息',
+        description: '工作相关的账号',
         created_at: dayjs().format('YYYY-MM-DD HH:mm:ss'),
         updated_at: dayjs().format('YYYY-MM-DD HH:mm:ss')
       }
@@ -54,9 +54,9 @@ export async function registerUser(data) {
     await GroupModal.add({
       data: {
         user_id: result._id,
-        logo: '',
-        name: '发票',
-        description: '发票相关的账号信息',
+        logo: '../assets/img/card.png',
+        name: '金融',
+        description: '金融相关的账号',
         created_at: dayjs().format('YYYY-MM-DD HH:mm:ss'),
         updated_at: dayjs().format('YYYY-MM-DD HH:mm:ss')
       }
@@ -64,9 +64,9 @@ export async function registerUser(data) {
     await GroupModal.add({
       data: {
         user_id: result._id,
-        logo: '',
+        logo: '../assets/img/game.png',
         name: '游戏',
-        description: '游戏相关的账号信息',
+        description: '游戏相关的账号',
         created_at: dayjs().format('YYYY-MM-DD HH:mm:ss'),
         updated_at: dayjs().format('YYYY-MM-DD HH:mm:ss')
       }
@@ -76,7 +76,7 @@ export async function registerUser(data) {
         user_id: result._id,
         logo: '',
         name: '其他',
-        description: '其他相关的账号信息',
+        description: '其他相关的账号',
         created_at: dayjs().format('YYYY-MM-DD HH:mm:ss'),
         updated_at: dayjs().format('YYYY-MM-DD HH:mm:ss')
       }

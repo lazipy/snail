@@ -1,21 +1,21 @@
 <template>
   <view class="container">
     <!-- content body -->
-    <!-- content body -->
     <view class="content">
       <!-- no-data -->
       <view class="no-data"
-            wx:if="{{flagAccounts.length === 0}}">
+            wx:if="{{accounts.length === 0}}">
         <image class="icon"
                src="../assets/img/no-account.png"
                mode="scaleToFill"
                lazy-load="false">
         </image>
-        <view class="text text-gray">您暂无星标账号</view>
+        <view class="text text-gray"
+              @tap="addAccount">您暂无账号，<text class="text-blue">请添加</text></view>
       </view>
       <view class="list"
             wx:else>
-        <repeat for="{{flagAccounts}}"
+        <repeat for="{{accounts}}"
                 key="index"
                 index="index"
                 item="item">
@@ -63,72 +63,77 @@
         </repeat>
       </view>
     </view>
-    <!-- TabBar -->
-    <tab-bar current="Flag" />
   </view>
 </template>
 
 <script>
   import wepy from 'wepy'
-  import TabBar from '../components/TabBar'
+  import { queryGroupAccounts } from '../services/account'
 
-  export default class Flag extends wepy.page {
+  export default class AccountList extends wepy.page {
     config = {
-      navigationBarTitleText: '星标账号',
+      navigationBarTitleText: '账号列表',
       navigationBarTextStyle: 'white'
-    }
-
-    components = {
-      'tab-bar': TabBar
     }
 
     data = {
       userInfo: null,
-      flagAccounts: [],
+      formData: {
+        userId: '',
+        groupId: ''
+      },
+      accounts: []
     }
 
-    onLoad() {
-      wx.hideTabBar()
+    onLoad(options) {
+      this.userInfo = wx.getStorageSync('userInfo')
+      this.formData.userId = this.userInfo._id
+      this.formData.groupId = options.groupId
     }
 
     onShow() {
-      this.flagAccounts = wx.getStorageSync('flagAccounts')
+      this.getData()
     }
 
     methods = {
-      addAccount() {
-        wx.navigateTo({
-          url: './add-account'
-        })
-      },
       checkDetail(val) {
         wx.navigateTo({
           url: `./account-detail?id=${val._id}`
         })
       },
       toggle(val) {
-        let index = this.flagAccounts.findIndex(item => item._id === val._id)
+        let index = this.accounts.findIndex(item => item._id === val._id)
         if (val.hidden) {
-          this.flagAccounts[index].hidden = false
+          this.accounts[index].hidden = false
         } else {
-          this.flagAccounts[index].hidden = true
+          this.accounts[index].hidden = true
         }
       }
+    }
+
+    getData() {
+      wx.showLoading({ title: '加载中...', icon: 'none' })
+      queryGroupAccounts(this.formData)
+        .then(res => {
+          wx.hideLoading()
+          if (res.head.code === 1) {
+            this.accounts = res.body.data
+            this.$apply()
+          }
+        })
+        .catch(err => {
+          console.log(err)
+        })
     }
   }
 </script>
 
 <style lang="scss" scoped>
   .container {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
+    min-height: 100vh;
     padding-bottom: 100rpx;
   }
   .content {
-    flex: 1;
-    overflow: auto;
-    padding-bottom: 35rpx;
     .no-data {
       height: 100%;
       text-align: center;

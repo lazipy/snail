@@ -195,7 +195,6 @@
     flex-direction: column;
     height: 100vh;
     padding-bottom: 100rpx;
-    background-color: #fff;
   }
   .content {
     flex: 1;

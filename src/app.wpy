@@ -23,6 +23,7 @@
         'pages/login',
         'pages/register',
         'pages/group',
+        'pages/account-list',
         'pages/add-group',
         'pages/edit-group',
         'pages/publish',
