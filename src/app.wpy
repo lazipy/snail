@@ -28,7 +28,12 @@
         'pages/edit-group',
         'pages/publish',
         'pages/flag',
-        'pages/mine'
+        'pages/mine',
+        'pages/edit-profile',
+        'pages/bind-mobile',
+        'pages/fingerprint',
+        'pages/help-center',
+        'pages/feedback'
       ],
       window: {
         navigationBarTitleText: '蜗牛账号管家',
@@ -52,12 +57,12 @@
       },
       tabBar: {
         color: '#999999',
-        selectedColor: '#868AFF',
+        selectedColor: '#1890FF',
         backgroundColor: '#ffffff',
         list: [
           { pagePath: 'pages/home', text: '最新' },
           { pagePath: 'pages/group', text: '类型' },
-          { pagePath: 'pages/publish', text: '发布' },
+          { pagePath: 'pages/publish', text: '添加' },
           { pagePath: 'pages/flag', text: '星标' },
           { pagePath: 'pages/mine', text: '我的' }
         ]

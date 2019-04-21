@@ -1,6 +1,6 @@
 <template>
   <view class="container">
-    <view class="cu-bar search bg-white solid-bottom">
+    <view class="cu-bar search bg-white solid-bottom" wx:if="{{!isFinger}}">
       <view class="search-form round">
         <text class="icon-search"></text>
         <input type="text"
@@ -15,7 +15,7 @@
       </view>
     </view>
     <!-- content body -->
-    <view class="content">
+    <view class="content" wx:if="{{!isFinger}}">
       <!-- no-data -->
       <view class="no-data"
             wx:if="{{accounts.length === 0}}">
@@ -85,6 +85,9 @@
         <view class='gray-text'>加载中...</view>
       </view>
     </view>
+    <!-- 指纹 -->
+    <view class="cu-modal bg-white {{userInfo && userInfo.mobile && isFinger ? 'show' : ''}}">
+    </view>
     <!-- TabBar -->
     <tab-bar current="Home" />
   </view>
@@ -93,6 +96,7 @@
 <script>
   import wepy from 'wepy'
   import TabBar from '../components/TabBar'
+  import { createId } from '@/utils'
   import { queryAccounts, queryFlagAccounts } from '../services/account'
   import { queryGroups } from '../services/group'
 
@@ -108,6 +112,7 @@
 
     data = {
       loadModal: false,
+      isFinger: false,
       userInfo: null,
       keyword: '',
       accounts: []
@@ -115,12 +120,27 @@
 
     onLoad() {
       wx.hideTabBar()
+      this.isFinger = wx.getStorageSync('isFinger')
       this.userInfo = wx.getStorageSync('userInfo')
       if (!this.userInfo) {
         wx.reLaunch({ url: './login' })
       } else if (!this.userInfo.mobile) {
-        wx.reLaunch({ url: './login' })
-      } else {
+        wx.reLaunch({ url: './bind-mobile' })
+      }
+      if (this.userInfo && this.userInfo.mobile && this.isFinger) {
+        const _self = this
+        wx.startSoterAuthentication({
+          requestAuthModes: ['fingerPrint'],
+          challenge: String(createId()),
+          authContent: '请用指纹解锁',
+          success(res) {
+            console.log(res)
+            _self.isFinger = false
+            _self.$apply()
+          }
+        })
+      }
+      if (this.userInfo && this.userInfo.mobile) {
         this.getData()
       }
     }
@@ -137,9 +157,8 @@
         this.keyword = e.detail.value
       },
       search() {
-        if (!this.keyword) {
-          this.accounts = wx.getStorageSync('accounts')
-        } else {
+        this.accounts = wx.getStorageSync('accounts')
+        if (this.keyword) {
           this.accounts = this.accounts.filter(item => item.title.includes(this.keyword))
         }
       },
@@ -265,5 +284,12 @@
         }
       }
     }
+  }
+  .fingerprint {
+    width: 440rpx;
+    height: 440rpx;
+  }
+  .cu-dialog {
+    top: -60rpx;
   }
 </style>

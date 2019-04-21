@@ -1,0 +1,75 @@
+<template>
+  <view class="container">
+    <view class="content">
+      <image src="../assets/img/finger-print.png"
+             mode="scaleToFill"
+             lazy-load="false">
+      </image>
+      <button class="cu-btn bg-blue block lg margin-lg"
+              @tap="finger">{{isFinger ? '关闭指纹' : '开启指纹'}}</button>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+
+  export default class Fingerprint extends wepy.page {
+    config = {
+      navigationBarTitleText: '指纹认证',
+      navigationBarTextStyle: 'white'
+    }
+
+    data = {
+      isFinger: false
+    }
+
+    onLoad() {
+      this.isFinger = wx.getStorageSync('isFinger')
+    }
+
+    methods = {
+      finger() {
+        const _self = this
+        if (this.isFinger) {
+          this.isFinger = false
+          wx.setStorageSync('isFinger', this.isFinger)
+        } else {
+          wx.checkIsSupportSoterAuthentication({
+            success(res) {
+              if (res.supportMode.includes('fingerPrint')) {
+                wx.checkIsSoterEnrolledInDevice({
+                  checkAuthMode: 'fingerPrint',
+                  success(res) {
+                    if (res.isEnrolled) {
+                      _self.isFinger = true
+                      wx.setStorageSync('isFinger', _self.isFinger)
+                      _self.$apply()
+                      wx.showToast({ title: '您已开启指纹认证，下次进入小程序主页将进行指纹认证', icon: 'none' })
+                    } else {
+                      wx.showToast({ title: '您的手机尚未录入指纹', icon: 'none' })
+                    }
+                  }
+                })
+              } else {
+                wx.showToast({ title: '您的手机型号暂不支持指纹认证', icon: 'none' })
+              }
+            }
+          })
+        }
+      }
+    }
+  }
+</script>
+
+<style lang="scss" scoped>
+  .content {
+    padding-top: 100rpx;
+    text-align: center;
+    image {
+      margin-bottom: 60rpx;
+      width: 500rpx;
+      height: 500rpx;
+    }
+  }
+</style>

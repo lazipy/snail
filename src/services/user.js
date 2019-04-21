@@ -120,3 +120,61 @@ export async function userLogin(data) {
     console.log(err)
   }
 }
+
+/**
+ * 修改资料
+ * @param {userId, avatar, name}
+ */
+export async function editUserInfo(data) {
+  try {
+    // 更新用户信息
+    await UserModal.doc(data.userId).update({
+      data: {
+        avatar: data.avatar,
+        name: data.name
+      }
+    })
+    const res = await UserModal.doc(data.userId).get()
+    return {
+      head: { code: 1, message: '修改用户信息成功' },
+      body: { data: res.data }
+    }
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+/**
+ * 绑定手机号
+ * @param {userId, mobile, code, type}
+ */
+export async function bindMobile(data) {
+  try {
+    // 校对验证码
+    const res = await vertifySmsCode(data.mobile, data.code, data.type)
+    if (res.head.code !== 1) return res
+    // 查询用户是否存在
+    const users = await UserModal.where({
+      mobile: data.mobile
+    }).get()
+    if (users.data.length > 0) {
+      return {
+        head: { code: -1, message: '该手机号已经被绑定过，请更换手机号或直接登录' },
+        body: { data: users.data }
+      }
+    }
+    // 更新用户信息
+    await UserModal.doc(data.userId).update({
+      data: {
+        mobile: data.mobile
+      }
+    })
+    const result = await UserModal.doc(data.userId).get()
+    return {
+      head: { code: 1, message: '绑定手机号成功' },
+      body: { data: result.data }
+    }
+  } catch (err) {
+    console.log(err)
+  }
+}

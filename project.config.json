@@ -37,7 +37,7 @@
 			"list": []
 		},
 		"miniprogram": {
-			"current": 10,
+			"current": 15,
 			"list": [
 				{
 					"id": -1,
@@ -112,6 +112,41 @@
 					"id": -1,
 					"name": "pages/add-group",
 					"pathName": "pages/add-group",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "pages/edit-profile",
+					"pathName": "pages/edit-profile",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "pages/bind-mobile",
+					"pathName": "pages/bind-mobile",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "pages/help-center",
+					"pathName": "pages/help-center",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "pages/feedback",
+					"pathName": "pages/feedback",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "pages/fingerprint",
+					"pathName": "pages/fingerprint",
 					"scene": null
 				}
 			]

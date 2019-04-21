@@ -3,12 +3,12 @@ import dayjs from 'dayjs'
 const db = wx.cloud.database({ env: 'snail-4607b6' })
 const SmsActionModal = db.collection('SmsActions')
 
-const types = ['注册', '登录', '重置密码']
+const types = ['注册', '登录', '重置密码', '绑定手机号']
 
 /**
  * 发送短信验证码
  * @param {mobile, type}
- * type 0:注册 1:登录 2:重置密码
+ * type 0:注册 1:登录 2:重置密码 3:绑定手机号
  */
 export async function sendSmsCode(data) {
   const res = await wx.cloud.callFunction({

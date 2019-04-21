@@ -2,13 +2,13 @@
   <view class="container">
     <!-- content body -->
     <view class="content">
-      <view class="title">请选择发布类型</view>
+      <view class="title">请选择添加类型</view>
       <view class="card padding-lg margin-bottom-lg radius shadow bg-white" @tap="handleAccount">
         <image src="../assets/img/icon-add-account.png" mode="scaleToFill"
           lazy-load="false">
         </image>
         <view class="intro">
-          <view class="header">发布账号</view>
+          <view class="header">添加账号</view>
           <view class="label">添加需要保存的账号</view>
         </view>
       </view>
@@ -17,7 +17,7 @@
           lazy-load="false">
         </image>
         <view class="intro">
-          <view class="header">发布类型</view>
+          <view class="header">添加类型</view>
           <view class="label">添加分类管理账号</view>
         </view>
       </view>

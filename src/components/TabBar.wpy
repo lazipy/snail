@@ -10,7 +10,7 @@
     </view>
     <view class="action text-{{current === 'Publish' ? 'blue' : 'gray'}} add-action" @tap="handleChange('publish')">
       <button class="cu-btn icon-add bg-blue shadow"></button>
-      发布
+      添加
     </view>
     <view class="action text-{{current === 'Flag' ? 'blue' : 'gray'}}" @tap="handleChange('flag')">
       <view class="icon-like"></view>

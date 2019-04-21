@@ -1,0 +1,177 @@
+<template>
+  <view class="container">
+    <view class="cu-list menu">
+      <view class="cu-item arrow"
+            @tap="handleAvatarTap">
+        <view class="content">
+          <text style="color: #333333;">头像</text>
+          <image class="avatar"
+                 src="{{formData.avatar}}"
+                 mode="scaleToFill"
+                 lazy-load="false">
+          </image>
+        </view>
+      </view>
+    </view>
+    <form>
+      <view class="cu-form-group">
+        <view class="title">名称</view>
+        <input type="text"
+               value="{{formData.name}}"
+               placeholder="请输入名称"
+               @input="inputChange('name')" />
+      </view>
+    </form>
+    <button class="cu-btn bg-blue block lg btn-logout margin-lg"
+            @tap="submit">确认提交</button>
+    <i-message id="message" />
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { $Message } from '../iview/base/index'
+  import { editUserInfo } from '../services/user'
+
+  export default class EditProfile extends wepy.page {
+    config = {
+      navigationBarTitleText: '编辑资料',
+      navigationBarTextStyle: 'white'
+    }
+
+    data = {
+      userInfo: null,
+      formData: {
+        userId: '',
+        avatar: '',
+        name: ''
+      }
+    }
+
+    onLoad() {
+      this.userInfo = wx.getStorageSync('userInfo')
+      this.formData.userId = this.userInfo._id
+      this.formData.avatar = this.userInfo.avatar
+      this.formData.name = this.userInfo.name
+    }
+
+    methods = {
+      async handleAvatarTap() {
+        try {
+          const path = await this.chooseImage()
+          await this.uploadFile(path)
+          this.$apply()
+        } catch (err) {
+          console.log(err)
+        }
+      },
+      inputChange(key, e) {
+        this.formData[key] = e.detail.value
+      },
+      async submit() {
+        if (!this.formData.name) {
+          wx.showToast({ title: '请输入名称', icon: 'none' })
+          return
+        }
+        wx.showLoading({ title: '提交中...', mask: true })
+        editUserInfo(this.formData)
+          .then(res => {
+            wx.hideLoading()
+            if (res.head.code === 1) {
+              this.userInfo = res.body.data
+              wx.setStorageSync('userInfo', this.userInfo)
+              $Message({
+                content: '成功修改资料',
+                type: 'success'
+              })
+              setTimeout(() => {
+                wx.navigateBack({
+                  delta: 1
+                })
+              }, 800)
+            }
+          })
+          .catch(err => {
+            console.log(err)
+          })
+      }
+    }
+
+    // 选择图片
+    chooseImage() {
+      return new Promise((resolve, reject) => {
+        wx.chooseImage({
+          count: 1,
+          sizeType: ['original', 'compressed'],
+          sourceType: ['album', 'camera'],
+          success: function(res) {
+            resolve(res.tempFilePaths[0])
+          },
+          fail: function(err) {
+            reject(err)
+          }
+        })
+      })
+    }
+    // 上传文件
+    uploadFile(path) {
+      const _self = this
+      return new Promise((resolve, reject) => {
+        wx.cloud.uploadFile({
+          cloudPath: `avatar/user/${this.formData.userId}.png`,
+          filePath: path,
+          success: res => {
+            _self.formData.avatar = `https://736e-snail-4607b6-1259005191.tcb.qcloud.la/avatar/user/${this.formData.userId}.png`
+            _self.$apply()
+          },
+          fail: err => {
+            console.log(err)
+            wx.showToast({ title: '图片上传失败', icon: 'none' })
+          }
+        })
+      })
+    }
+  }
+</script>
+
+<style lang="scss" scoped>
+  .container {
+    min-height: 100vh;
+    line-height: 1;
+    background-color: #f2f2f2;
+
+    .cu-item.arrow {
+      position: relative;
+      &::after {
+        content: ' ';
+        width: 200%;
+        height: 200%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        border-radius: inherit;
+        transform: scale(0.5);
+        transform-origin: 0 0;
+        pointer-events: none;
+        box-sizing: border-box;
+        border-bottom: 1rpx solid rgba(0, 0, 0, 0.1);
+      }
+      .content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 140rpx;
+        line-height: 140rpx;
+      }
+      .avatar {
+        width: 100rpx;
+        height: 100rpx;
+        border-radius: 50%;
+      }
+    }
+    .cu-form-group input {
+      text-align: right;
+      padding-right: 0;
+    }
+  }
+</style>
