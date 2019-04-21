@@ -131,7 +131,7 @@
               })
               wx.setStorageSync('userInfo', res.body.data)
               setTimeout(() => {
-                if (this.userInfo.mobile) {
+                if (!this.userInfo.mobile) {
                   wx.switchTab({
                     url: './home'
                   })
