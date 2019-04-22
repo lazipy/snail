@@ -1,5 +1,11 @@
 <template>
   <view class="container padding-lr-lg">
+    <image class="logo"
+           src="../assets/img/logo.png"
+           mode="scaleToFill"
+           lazy-load="false">
+    </image>
+    <view class="title">绑定手机号，更安全便捷地管理账号</view>
     <form>
       <view class="cu-form-group solid-bottom margin-top">
         <input type="number"

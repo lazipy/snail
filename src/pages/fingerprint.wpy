@@ -1,7 +1,13 @@
 <template>
   <view class="container">
     <view class="content">
-      <image src="../assets/img/finger-print.png"
+      <image wx:if="{{!isFinger}}"
+             src="../assets/img/finger-print.png"
+             mode="scaleToFill"
+             lazy-load="false">
+      </image>
+      <image wx:else
+             src="../assets/img/finger-print-open.png"
              mode="scaleToFill"
              lazy-load="false">
       </image>
@@ -35,6 +41,7 @@
           this.isFinger = false
           wx.setStorageSync('isFinger', this.isFinger)
         } else {
+          wx.showLoading({ title: '开启中...', icon: 'none' })
           wx.checkIsSupportSoterAuthentication({
             success(res) {
               if (res.supportMode.includes('fingerPrint')) {

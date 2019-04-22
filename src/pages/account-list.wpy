@@ -82,11 +82,13 @@
         userId: '',
         groupId: ''
       },
-      accounts: []
+      accounts: [],
+      groups: []
     }
 
     onLoad(options) {
       this.userInfo = wx.getStorageSync('userInfo')
+      this.groups = wx.getStorageSync('groups')
       this.formData.userId = this.userInfo._id
       this.formData.groupId = options.groupId
     }
@@ -117,7 +119,11 @@
         .then(res => {
           wx.hideLoading()
           if (res.head.code === 1) {
-            this.accounts = res.body.data
+            this.accounts = res.body.data.map(item => {
+              let group = this.groups.find(val => val._id === item.group_id)
+              item.logo = group.logo
+              return item
+            })
             this.$apply()
           }
         })

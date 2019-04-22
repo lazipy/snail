@@ -1,6 +1,7 @@
 <template>
   <view class="container">
-    <view class="cu-bar search bg-white solid-bottom" wx:if="{{!isFinger}}">
+    <view class="cu-bar search bg-white solid-bottom"
+          wx:if="{{!isFinger}}">
       <view class="search-form round">
         <text class="icon-search"></text>
         <input type="text"
@@ -15,7 +16,8 @@
       </view>
     </view>
     <!-- content body -->
-    <view class="content" wx:if="{{!isFinger}}">
+    <view class="content"
+          wx:if="{{!isFinger}}">
       <!-- no-data -->
       <view class="no-data"
             wx:if="{{accounts.length === 0}}">
@@ -196,8 +198,13 @@
             item.logo = group.logo
             return item
           })
-          wx.setStorageSync('accounts', res[0].body.data)
-          wx.setStorageSync('flagAccounts', res[1].body.data)
+          const flagAccounts = res[1].body.data.map(item => {
+            let group = res[2].body.data.find(val => val._id === item.group_id)
+            item.logo = group.logo
+            return item
+          })
+          wx.setStorageSync('accounts', this.accounts)
+          wx.setStorageSync('flagAccounts', flagAccounts)
           wx.setStorageSync('groups', res[2].body.data)
           this.$apply()
         })
