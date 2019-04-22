@@ -42,12 +42,12 @@
             <text class="text-gray">问题反馈</text>
           </view>
         </view>
-        <!-- <view class="cu-item arrow">
+        <button class="cu-item arrow" open-type="share">
           <view class="content">
             <text class="icon-forward text-blue"></text>
-            <text class="text-gray">推荐朋友</text>
+            <text class="text-gray">推荐给朋友</text>
           </view>
-        </view> -->
+        </button>
         <!-- <view class="cu-item arrow" @tap="routerTo('./logger')">
           <view class="content">
             <text class="icon-text text-blue"></text>
@@ -93,6 +93,15 @@
 
     onShow() {
       this.userInfo = wx.getStorageSync('userInfo')
+    }
+
+    onShareAppMessage() {
+      return {
+        title: '账号太多记不住？推荐给你使用蜗牛账号管家',
+        path: '/pages/home',
+        imageUrl: '../assets/img/share.png',
+        success: res => {}
+      }
     }
 
     methods = {
@@ -146,6 +155,9 @@
     }
     .cu-item .text-gray {
       color: #666666;
+    }
+    button.cu-item {
+      text-align: left;
     }
   }
 </style>
