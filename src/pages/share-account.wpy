@@ -1,0 +1,256 @@
+<template>
+  <view class="container">
+    <view class="body">
+      <view class="panel bg-white">
+        <image class="avatar"
+               src="{{shareUserInfo.avatar}}"
+               mode="scaleToFill"
+               lazy-load="false">
+        </image>
+        <view class="intro">
+          <view class="title">
+            <view class="name text-cut">{{shareUserInfo.name}}</view>
+            <view class="cu-tag bg-yellow light sm">蜗牛用户</view>
+          </view>
+          <view class="mobile text-cut">{{shareUserInfo.mobile}}</view>
+        </view>
+      </view>
+      <view class="cu-bar bg-white margin-top-sm solid-bottom">
+        <view class="action">
+          <text class="icon-title text-blue"></text>
+          <text class="text-xl text-bold">分享的账号信息</text>
+        </view>
+      </view>
+      <view class="cu-list menu">
+        <view class="cu-item">
+          <view class="content">
+            <text class="text-grey">标题</text>
+          </view>
+          <view class="action">
+            <text class="text-grey text-sm">{{shareAccountInfo.title}}</text>
+          </view>
+        </view>
+        <view class="cu-item">
+          <view class="content">
+            <text class="text-grey">账号</text>
+          </view>
+          <view class="action">
+            <text class="text-grey text-sm">{{shareAccountInfo.number}}</text>
+          </view>
+          <view class="text-blue solid-left copy"
+                @tap="copy({{shareAccountInfo.number}}, '账号')">复制</view>
+        </view>
+        <view class="cu-item"
+              wx:if="{{shareAccountInfo.password}}">
+          <view class="content">
+            <text class="text-grey">密码</text>
+          </view>
+          <view class="action">
+            <text class="text-grey text-sm">{{shareAccountInfo.hidden ? '******' : shareAccountInfo.password}}</text>
+          </view>
+          <image wx:if="{{shareAccountInfo.hidden}}"
+                 @tap="toggle"
+                 class="eye"
+                 src="../assets/img/eye.png"
+                 mode="scaleToFill"
+                 lazy-load="false">
+          </image>
+          <image wx:else
+                 class="eye"
+                 @tap="toggle"
+                 src="../assets/img/eye-open.png"
+                 mode="scaleToFill"
+                 lazy-load="false">
+          </image>
+          <view class="text-blue solid-left copy"
+                @tap="copy({{shareAccountInfo.password}}, '密码')">复制</view>
+        </view>
+        <view class="cu-item">
+          <view class="content">
+            <text class="text-grey">密码提示</text>
+          </view>
+          <view class="action">
+            <text class="text-grey text-sm">{{shareAccountInfo.description}}</text>
+          </view>
+        </view>
+        <view class="cu-item">
+          <view class="content">
+            <text class="text-grey">类型</text>
+          </view>
+          <view class="action text-cut">
+            <text class="text-grey text-sm">{{shareAccountInfo.group_name}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view wx:if="{{userInfo._id !== shareUserInfo._id}}"
+          class="actions bg-white padding-lr-lg padding-tb-sm shadow">
+      <button class="cu-btn bg-blue block lg"
+              @tap="save">保存到我的账号</button>
+    </view>
+    <i-message id="message" />
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { $Message } from '../iview/base/index'
+  import { getUserInfoById } from '../services/user'
+  import { getAccountInfoById, addShareAccount } from '../services/account'
+
+  export default class ShareAccount extends wepy.page {
+    config = {
+      navigationBarTitleText: '账号分享'
+    }
+
+    data = {
+      userInfo: null,
+      shareUserInfo: null,
+      shareAccountInfo: null,
+      formData: {
+        userId: '',
+        title: '',
+        number: '',
+        password: '',
+        hidden: false,
+        description: '',
+        groupName: ''
+      }
+    }
+
+    onLoad(options) {
+      this.getData(options.userId, options.accountId)
+    }
+
+    onShow() {
+      this.userInfo = wx.getStorageSync('userInfo')
+      this.formData.userId = this.userInfo._id
+    }
+
+    methods = {
+      toggle() {
+        this.shareAccountInfo.hidden = !this.shareAccountInfo.hidden
+      },
+      copy(val, key) {
+        wx.setClipboardData({
+          data: val,
+          success() {
+            wx.showToast({ title: `${key}已复制`, icon: 'none' })
+          }
+        })
+      },
+      save() {
+        if (!this.userInfo) {
+          wx.navigateTo({ url: `./login?from=share` })
+        } else {
+          wx.showLoading({ title: '正在保存...', icon: 'none' })
+          addShareAccount(this.formData)
+            .then(res => {
+              wx.hideLoading()
+              if (res.head.code === 1) {
+                $Message({
+                  content: '保存成功',
+                  type: 'success'
+                })
+                setTimeout(() => {
+                  wx.switchTab({
+                    url: './home'
+                  })
+                }, 800)
+              }
+            })
+            .catch(err => {
+              console.log(err)
+            })
+        }
+      }
+    }
+
+    getData(userId, accountId) {
+      wx.showLoading({ title: '加载中...', mask: true })
+      Promise.all([getUserInfoById(userId), getAccountInfoById(accountId)])
+        .then(res => {
+          wx.hideLoading()
+          this.shareUserInfo = res[0].body.data
+          this.shareAccountInfo = res[1].body.data
+          this.formData.title = this.shareAccountInfo.title
+          this.formData.number = this.shareAccountInfo.number
+          this.formData.password = this.shareAccountInfo.password
+          this.formData.hidden = this.shareAccountInfo.hidden
+          this.formData.description = this.shareAccountInfo.description
+          this.formData.groupName = this.shareAccountInfo.group_name
+          this.$apply()
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    }
+  }
+</script>
+
+<style lang="scss" scoped>
+  .container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    .body {
+      flex: 1;
+      overflow: auto;
+    }
+    .panel {
+      display: flex;
+      align-items: center;
+      padding: 30rpx;
+      .avatar {
+        width: 100rpx;
+        height: 100rpx;
+        border-radius: 50%;
+      }
+      .intro {
+        margin-left: 30rpx;
+        flex: 1;
+        overflow: hidden;
+        .title {
+          display: flex;
+          align-items: center;
+          .name {
+            margin-right: 20rpx;
+            font-size: 30rpx;
+            color: #333333;
+            font-weight: bold;
+          }
+        }
+        .mobile {
+          color: #666666;
+          font-size: 28rpx;
+          margin-top: 12rpx;
+        }
+      }
+    }
+    .cu-list {
+      flex: 1;
+    }
+    .cu-item {
+      .action {
+        flex: 1;
+        text-align: right;
+      }
+      .eye {
+        margin-left: 20rpx;
+        width: 50rpx;
+        height: 50rpx;
+        padding: 5rpx;
+      }
+    }
+    .copy {
+      position: relative;
+      left: 10rpx;
+      padding: 10rpx 20rpx;
+      margin-left: 20rpx;
+      text-align: right;
+    }
+    .cu-bar {
+      color: #333333;
+    }
+  }
+</style>

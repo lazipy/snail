@@ -33,7 +33,8 @@
         'pages/bind-mobile',
         'pages/fingerprint',
         'pages/help-center',
-        'pages/feedback'
+        'pages/feedback',
+        'pages/share-account'
       ],
       window: {
         navigationBarTitleText: '蜗牛账号管家',

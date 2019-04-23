@@ -62,6 +62,7 @@
     }
 
     data = {
+      from: null,
       sendForm: {
         mobile: '',
         type: 1
@@ -72,6 +73,10 @@
         code: '',
         type: 1
       }
+    }
+
+    onLoad(options) {
+      this.from = options.from
     }
 
     methods = {
@@ -133,9 +138,15 @@
             wx.hideLoading()
             if (res.head.code === 1) {
               wx.setStorageSync('userInfo', res.body.data)
-              wx.switchTab({
-                url: './home'
-              })
+              if (!this.from) {
+                wx.switchTab({
+                  url: './home'
+                })
+              } else {
+                wx.navigateBack({
+                  delta: 1
+                })
+              }
             } else {
               wx.showToast({ title: res.head.message, icon: 'none' })
             }

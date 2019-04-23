@@ -2,6 +2,7 @@ import dayjs from 'dayjs'
 
 const db = wx.cloud.database({ env: 'snail-4607b6' })
 const AccountModal = db.collection('Accounts')
+const GroupModal = db.collection('Groups')
 
 /**
  * 添加账号
@@ -18,6 +19,57 @@ export async function addAccount(data) {
         hidden: data.hidden,
         description: data.description,
         group_id: data.groupId,
+        group_name: data.groupName,
+        flag: 0,
+        created_at: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+        updated_at: dayjs().format('YYYY-MM-DD HH:mm:ss')
+      }
+    })
+    const res = await AccountModal.doc(result._id).get()
+    return {
+      head: { code: 1, message: '添加账号成功' },
+      body: { data: res.data }
+    }
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+/**
+ * 添加好友分享的账号
+ * @param {userId, title, number, password, hidden, description, groupName}
+ */
+export async function addShareAccount(data) {
+  try {
+    let groupId = ''
+    const groups = await GroupModal.where({
+      user_id: data.userId,
+      group_name: data.groupName
+    }).get()
+    if (groups.data.length === 0) {
+      let result = await GroupModal.add({
+        data: {
+          user_id: data.userId,
+          logo: '',
+          name: data.groupName,
+          description: '暂无分类介绍',
+          created_at: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+          updated_at: dayjs().format('YYYY-MM-DD HH:mm:ss')
+        }
+      })
+      groupId = result._id
+    } else {
+      groupId = groups.data[0]._id
+    }
+    const result = await AccountModal.add({
+      data: {
+        user_id: data.userId,
+        title: data.title,
+        number: data.number,
+        password: data.password,
+        hidden: data.hidden,
+        description: data.description,
+        group_id: groupId,
         group_name: data.groupName,
         flag: 0,
         created_at: dayjs().format('YYYY-MM-DD HH:mm:ss'),
@@ -139,6 +191,7 @@ export async function editAccount(data) {
     console.log(err)
   }
 }
+
 /**
  * 删除账号
  * @param {userId}
@@ -149,6 +202,22 @@ export async function deleteAccount(id) {
     return {
       head: { code: 1, message: '该账号已删除' },
       body: { data: result }
+    }
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+/**
+ * 通过id获取账号信息
+ * @param {accountId}
+ */
+export async function getAccountInfoById(accountId) {
+  try {
+    const result = await AccountModal.doc(accountId).get()
+    return {
+      head: { code: 1, message: '获取账号信息成功' },
+      body: { data: result.data }
     }
   } catch (err) {
     console.log(err)

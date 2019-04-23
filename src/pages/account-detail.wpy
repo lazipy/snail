@@ -16,7 +16,8 @@
         <view class="action">
           <text class="text-grey text-sm">{{accountInfo.number}}</text>
         </view>
-        <view class="text-blue solid-left copy" @tap="copy({{accountInfo.number}}, '账号')">复制</view>
+        <view class="text-blue solid-left copy"
+              @tap="copy({{accountInfo.number}}, '账号')">复制</view>
       </view>
       <view class="cu-item"
             wx:if="{{accountInfo.password}}">
@@ -40,7 +41,8 @@
                mode="scaleToFill"
                lazy-load="false">
         </image>
-        <view class="text-blue solid-left copy" @tap="copy({{accountInfo.number}}, '密码')">复制</view>
+        <view class="text-blue solid-left copy"
+              @tap="copy({{accountInfo.password}}, '密码')">复制</view>
       </view>
       <!-- <view class="cu-item">
         <view class="content">
@@ -95,6 +97,10 @@
             @tap="removeAccount">
         <view class="icon-delete"></view> 删除
       </view>
+      <button class="action text-blue"
+              open-type="share">
+        <view class="icon-share"></view> 分享
+      </button>
       <view class="bg-blue submit"
             @tap="edit">立即编辑</view>
     </view>
@@ -128,6 +134,14 @@
       this.flagAccounts = wx.getStorageSync('flagAccounts')
       this.accountIndex = this.accounts.findIndex(item => item._id === this.id)
       this.accountInfo = this.accounts[this.accountIndex]
+    }
+    onShareAppMessage() {
+      return {
+        title: `${this.userInfo.name}分享了账号给你使用，点击查看吧~`,
+        path: `/pages/share-account?userId=${this.userInfo._id}&accountId=${this.accountInfo._id}`,
+        imageUrl: '../assets/img/share.png',
+        success: res => {}
+      }
     }
     methods = {
       toggle() {

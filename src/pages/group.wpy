@@ -68,6 +68,8 @@
     data = {
       userInfo: null,
       groups: [],
+      accounts: [],
+      flagAccounts: [],
       activeGroup: null,
       visible: false,
       actions: [{ name: '编辑类型', color: '#1890FF' }, { name: '删除类型', color: '#ed3f14' }]
@@ -80,6 +82,8 @@
     onShow() {
       this.userInfo = wx.getStorageSync('userInfo')
       this.groups = wx.getStorageSync('groups')
+      this.accounts = wx.getStorageSync('accounts')
+      this.flagAccounts = wx.getStorageSync('flagAccounts')
       this.groups = this.groups.map(item => {
         item.time = dayjs(item.updated_at).format('YYYY-MM-DD')
         return item
@@ -135,6 +139,10 @@
                   const index = _self.groups.findIndex(item => item._id === _self.activeGroup._id)
                   _self.groups.splice(index, 1)
                   wx.setStorageSync('groups', _self.groups)
+                  const accounts = _self.accounts.filter(item => item.group_id !== _self.activeGroup._id)
+                  wx.setStorageSync('accounts', accounts)
+                  const flagAccounts = _self.flagAccounts.filter(item => item.group_id !== _self.activeGroup._id)
+                  wx.setStorageSync('flagAccounts', flagAccounts)
                   $Message({
                     content: '删除类型成功',
                     type: 'success'

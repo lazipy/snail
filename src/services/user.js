@@ -178,3 +178,18 @@ export async function bindMobile(data) {
     console.log(err)
   }
 }
+
+/**
+ * 通过id获取用户信息
+ */
+export async function getUserInfoById(userId) {
+  try {
+    const result = await UserModal.doc(userId).get()
+    return {
+      head: { code: 1, message: '获取用户信息成功' },
+      body: { data: result.data }
+    }
+  } catch (err) {
+    console.log(err)
+  }
+}
