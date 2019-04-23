@@ -1,6 +1,6 @@
 <template>
   <view class="container">
-    <view class="body">
+    <view class="body" wx:if="{{!error}}">
       <view class="panel bg-white">
         <image class="avatar"
                src="{{shareUserInfo.avatar}}"
@@ -83,11 +83,20 @@
         </view>
       </view>
     </view>
-    <view wx:if="{{userInfo._id !== shareUserInfo._id}}"
+    <view wx:if="{{userInfo._id !== shareUserInfo._id && !error}}"
           class="actions bg-white padding-lr-lg padding-tb-sm shadow">
       <button class="cu-btn bg-blue block lg"
               @tap="save">保存到我的账号</button>
     </view>
+    <view class="no-data"
+            wx:if="{{error}}">
+        <image class="icon"
+               src="../assets/img/no-account.png"
+               mode="scaleToFill"
+               lazy-load="false">
+        </image>
+        <view class="text text-gray">该分享已过期</view>
+      </view>
     <i-message id="message" />
   </view>
 </template>
@@ -115,7 +124,8 @@
         hidden: false,
         description: '',
         groupName: ''
-      }
+      },
+      error: false
     }
 
     onLoad(options) {
@@ -183,6 +193,8 @@
         })
         .catch(err => {
           console.log(err)
+          this.error = true
+          this.$apply()
         })
     }
   }
@@ -196,6 +208,19 @@
     .body {
       flex: 1;
       overflow: auto;
+    }
+    .no-data {
+      height: 100%;
+      text-align: center;
+      padding-top: 200rpx;
+      image {
+        width: 400rpx;
+        height: 400rpx;
+      }
+      .text {
+        padding: 20rpx;
+        font-size: 28rpx;
+      }
     }
     .panel {
       display: flex;
