@@ -97,7 +97,7 @@
 
     onShareAppMessage() {
       return {
-        title: '账号太多记不住？推荐给你使用蜗牛账号管家',
+        title: '账号太多记不住？推荐你使用蜗牛账号管家',
         path: '/pages/home',
         imageUrl: '../assets/img/share.png',
         success: res => {}
