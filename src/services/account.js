@@ -44,7 +44,7 @@ export async function addShareAccount(data) {
     let groupId = ''
     const groups = await GroupModal.where({
       user_id: data.userId,
-      group_name: data.groupName
+      name: data.groupName
     }).get()
     if (groups.data.length === 0) {
       let result = await GroupModal.add({
