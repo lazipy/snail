@@ -71,6 +71,8 @@
     onLoad() {
       this.userInfo = wx.getStorageSync('userInfo')
       this.formData.userId = this.userInfo._id
+      this.sendForm.mobile = this.userInfo.mobile
+      this.formData.mobile = this.userInfo.mobile
     }
 
     methods = {

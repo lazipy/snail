@@ -101,7 +101,9 @@
       userInfo: null,
       groups: [],
       accounts: [],
+      flagAccounts: [],
       accountIndex: -1,
+      flagIndex: -1,
       accountInfo: null,
       visible: false,
       value: [0],
@@ -123,6 +125,9 @@
       this.userInfo = wx.getStorageSync('userInfo')
       this.groups = wx.getStorageSync('groups')
       this.accounts = wx.getStorageSync('accounts')
+      this.flagAccounts = wx.getStorageSync('flagAccounts')
+
+      this.flagIndex = this.flagAccounts.findIndex(item => item._id === options.id)
 
       this.accountIndex = this.accounts.findIndex(item => item._id === options.id)
       this.accountInfo = this.accounts.find(item => item._id === options.id)
@@ -183,8 +188,16 @@
           .then(res => {
             wx.hideLoading()
             if (res.head.code === 1) {
+              const group = this.groups.filter(item => item._id === this.formData.groupId)[0]
+              console.log(group)
               this.accounts[this.accountIndex] = res.body.data
+              this.accounts[this.accountIndex].logo = group.logo
               wx.setStorageSync('accounts', this.accounts)
+              if (this.flagIndex !== -1) {
+                this.flagAccounts[this.flagIndex] = res.body.data
+                this.flagAccounts[this.flagIndex].logo = group.logo
+                wx.setStorageSync('flagAccounts', this.flagAccounts)
+              }
               $Message({
                 content: '修改账号成功',
                 type: 'success'
