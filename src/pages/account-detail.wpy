@@ -137,7 +137,7 @@
     }
     onShareAppMessage() {
       return {
-        title: `${this.userInfo.name}分享了账号给你使用，点击查看吧~`,
+        title: `${this.userInfo.name}分享了一个名为“${this.accountInfo.title}”的账号给你使用，点击查看吧~`,
         path: `/pages/share-account?userId=${this.userInfo._id}&accountId=${this.accountInfo._id}`,
         imageUrl: '../assets/img/share.png',
         success: res => {}
